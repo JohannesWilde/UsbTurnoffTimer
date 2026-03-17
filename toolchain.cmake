@@ -10,7 +10,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CMAKE_C_COMPILER sdcc)
 
 # here is the target environment is located
-SET(CMAKE_FIND_ROOT_PATH c:/Program Files/SDCC/bin/)
+# SET(CMAKE_FIND_ROOT_PATH c:/Program Files/SDCC/bin/)
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search 
