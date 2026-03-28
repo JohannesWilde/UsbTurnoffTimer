@@ -47,7 +47,10 @@ else ()
             set(PROGRAMMER_COM_PORT "None" CACHE STRING "Name of the COM port used to communicate with the programmer.")
 
             add_custom_target(program${PROJECT_NAME}
-                              ${Python_EXECUTABLE} -m stcgal --port ${PROGRAMMER_COM_PORT} --baud ${PROGRAMMER_BAUD_RATE} --protocol ${PROGRAMMER_PROTOCOL} $<TARGET_FILE:${PROJECT_NAME}>
+                              ${Python_EXECUTABLE} -m stcgal
+                                --port ${PROGRAMMER_COM_PORT}
+                                --baud ${PROGRAMMER_BAUD_RATE}
+                                --protocol ${PROGRAMMER_PROTOCOL} $<TARGET_FILE:${PROJECT_NAME}>
                               DEPENDS ${PROJECT_NAME}
                               COMMENT "Going to program $<TARGET_FILE:${PROJECT_NAME}> via ${PROGRAMMER_COM_PORT}."
                               SOURCES $<TARGET_FILE:${PROJECT_NAME}>
