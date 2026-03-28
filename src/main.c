@@ -1,4 +1,4 @@
-#include <stc8h.h>
+#include "stc8g.h"
 
 
 static void delay(unsigned int t)
@@ -48,33 +48,36 @@ void main()
     P1M1 = (P5M1 & ~(0b1 << PWR_SWITCH_PIN_NUMBER)) | (DIO_MODE_PUSH_PULL_OUTPUT_M1 << PWR_SWITCH_PIN_NUMBER);
 
     PWR_SWITCH_PIN = 1; // PWR_SWITCH at dev board.
+
+    // WKTCH[6:0], WKTCL[7:0]  ; WKTCH.WKTEN [7] Power-down wake-up timer enable bit
     WKTCL = 0xFE; // Set the power-down wake-up clock to be about 10 seconds
     WKTCH = 0x87;
     EA = 1; // enable interrupts
 
-    uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
+    // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
 
     while (1)
     {
-        // PCON |= 0x02;  // Enter power-down mode
-        // PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
+        PCON |= 0x02;  // PCON.PD = 1 - Enter power-down mode
+        PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
         // delay(50);
 
-        uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
-        uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
+        // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
+        // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
 
-        if (rotaryEncoderA != rotaryEncoderAPrevious)
-        {
-            rotaryEncoderAPrevious = rotaryEncoderA;
+        // if (rotaryEncoderA != rotaryEncoderAPrevious)
+        // {
+        //     rotaryEncoderAPrevious = rotaryEncoderA;
 
-            PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
+        //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
 
-            // Observation: clockwise: on, counter-clockwise: off
-        }
-        else
-        {
-            // intentionally empty
-        }
+        //     // Observation: clockwise: on, counter-clockwise: off
+        // }
+        // else
+        // {
+        //     // intentionally empty
+        // }
+
         // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
         // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
         // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;

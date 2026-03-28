@@ -1,11 +1,12 @@
 
 add_executable(${PROJECT_NAME}
     main.c
+    stc8g.h
 )
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE stc8hLib
-)
+# target_link_libraries(${PROJECT_NAME}
+#     PRIVATE
+# )
 
 ihx_to_hex(${PROJECT_NAME})
 
