@@ -21,8 +21,8 @@ static void delay(unsigned int t)
 #define DIO_MODE_OPEN_DRAIN_M0 1
 #define DIO_MODE_OPEN_DRAIN_M1 1
 
-#define PWR_SWITCH_PORT_NUMBER 1
-#define PWR_SWITCH_PIN_NUMBER 2
+#define PWR_SWITCH_PORT_NUMBER 1  // 3
+#define PWR_SWITCH_PIN_NUMBER 2  // 1
 
 #define PUSH_BUTTON_PORT_NUMBER 3
 #define PUSH_BUTTON_PIN_NUMBER 4  // for final layout 0 - but right now avoid conflicts with programming pins.
