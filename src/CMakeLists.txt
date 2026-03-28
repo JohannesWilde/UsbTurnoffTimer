@@ -18,7 +18,8 @@ find_package(Python
 )
 
 if (NOT Python_Interpreter_FOUND)
-    message(WARNING " No Python interpreter found - programming via stcgal won't be possible.")
+    message(WARNING " No Python interpreter found - programming via stcgal won't be possible.\n"
+                    "If Python is installed in an unusual place, please set the CMake variable Python_ROOT_DIR accordingly.")
 else ()
     message(STATUS " Python found: ${Python_EXECUTABLE}")
 
