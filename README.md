@@ -15,3 +15,17 @@ SDCC 4.5.0:
 
 CMake & IDE (QtCreator Community):
 - https://www.qt.io/
+
+## Documentation
+
+STC8G
+- https://www.stcmicro.com/datasheet/STC8G-en.pdf
+
+TM1637
+- https://raw.githubusercontent.com/avishorp/TM1637/master/docs/TM1637_V2.4_EN.pdf
+
+Rotary Encoder
+- https://www.handsontec.com/dataspecs/module/Rotary%20Encoder.pdf
+
+N-channel MOSFET
+- https://www.alldatasheet.com/datasheet-pdf/download/1118399/UPI/QM3004D.html
