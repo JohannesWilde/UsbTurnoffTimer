@@ -100,14 +100,8 @@ void main()
     // IRC32KCR = 0 << 7; // ENIRC32K[7]
     SFRX_OFF();
 
-    // // WKTCH[6:0], WKTCL[7:0]  ; WKTCH.WKTEN [7] Power-down wake-up timer enable bit
-    // // 0x7FE = 2046 -> duration = (1 / /*wakeup timer frequency*/ 36.075 kHz) * (2046 + /*as per manual*/ 1) * /*as per manual*/ 16  which are approximately  1.1 s
-    // WKTCL = 0xFE;
-    // WKTCH = ((/*enabled*/ 0) << 7) | 0x07; // 1 - enabled, 0 - disabled
-
     // TMOD = (0 * T0_GATE) | (0 * T0_CT) | (0 * T0_M1) | (0 * T0_M0); // un-gated [0], timer [0], 16-bit auto-reload [00]
     // AUXR &= ~(1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
-    // AUXR |= (1 << 7);
     #define TIMER0_COUNT (65536ull - (F_CPU / 12 / F_SYS_TICK))
     // TR0 = 0; // Disable Timer0 so that the newly configured TH0 and TL0 will be used from the first cycle.
     TL0 = TIMER0_COUNT % 256;
@@ -123,7 +117,6 @@ void main()
     while (1)
     {
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
-        // PCON |= (1 << 1);  // PCON.PD[1] = 1 - Enter power-down mode
 
         --preScaler;
 
