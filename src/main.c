@@ -1,3 +1,4 @@
+#include "static_assert.h"
 #include "stc8g.h"
 
 
@@ -9,6 +10,11 @@ static void delay(unsigned int t)
         while (i--);
     }
 }
+
+#define F_IRC 6000000
+#define CLOCK_DIVISOR 4
+COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
+#define F_CPU F_IRC / (CLKDIV_SEL - 1)
 
 #define MAKE_PIN_NAME_(port, pin) P##port##_##pin
 #define MAKE_PIN_NAME(port, pin) MAKE_PIN_NAME_(port, pin)
@@ -47,11 +53,19 @@ void main()
     P1M0 = (P5M0 & ~(0b1 << PWR_SWITCH_PIN_NUMBER)) | (DIO_MODE_PUSH_PULL_OUTPUT_M0 << PWR_SWITCH_PIN_NUMBER);
     P1M1 = (P5M1 & ~(0b1 << PWR_SWITCH_PIN_NUMBER)) | (DIO_MODE_PUSH_PULL_OUTPUT_M1 << PWR_SWITCH_PIN_NUMBER);
 
-    PWR_SWITCH_PIN = 1; // PWR_SWITCH at dev board.
+    PWR_SWITCH_PIN = 1; // PWR_SWITCH
+
+    SFRX_ON();
+    // Precise timing is more important than less current for this application.
+    CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
+    CLKDIV = (CLOCK_DIVISOR - 1);
+    // HIRCCR = 1 << 7; // ENHIRC[7]
+    // IRC32KCR = 0 << 7; // ENIRC32K[7]
+    SFRX_OFF();
 
     // WKTCH[6:0], WKTCL[7:0]  ; WKTCH.WKTEN [7] Power-down wake-up timer enable bit
     WKTCL = 0xFE; // Set the power-down wake-up clock to be about 10 seconds
-    WKTCH = 0x87;
+    WKTCH = ((/*enabled*/ 1) << 7) | 0x07; // 1 - enabled, 0 - disabled
     EA = 1; // enable interrupts
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
