@@ -68,6 +68,8 @@ void main()
             rotaryEncoderAPrevious = rotaryEncoderA;
 
             PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
+
+            // Observation: clockwise: on, counter-clockwise: off
         }
         else
         {
