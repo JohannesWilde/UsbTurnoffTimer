@@ -31,8 +31,6 @@
 #ifndef STC8G1_H
 #define STC8G1_H
 
-
-#include <stdint.h>
 #include <mcs51/compiler.h>
 #include <mcs51/8051.h>
 
