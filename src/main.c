@@ -52,14 +52,29 @@ void main()
     WKTCH = 0x87;
     EA = 1; // enable interrupts
 
+    uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
+
     while (1)
     {
         // PCON |= 0x02;  // Enter power-down mode
         // PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
         // delay(50);
 
+        uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
+        uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
+
+        if (rotaryEncoderA != rotaryEncoderAPrevious)
+        {
+            rotaryEncoderAPrevious = rotaryEncoderA;
+
+            PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
+        }
+        else
+        {
+            // intentionally empty
+        }
         // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
         // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
-        PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
+        // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
     }
 }
