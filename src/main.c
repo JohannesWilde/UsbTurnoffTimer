@@ -3,10 +3,11 @@
 
 static void delay(unsigned int t)
 {
-  while (t--) {
-    volatile int i = 0xFFF;
-    while (i--);
-  }
+    while (t--)
+    {
+        volatile int i = 0xFFF;
+        while (i--);
+    }
 }
 
 #define MAKE_PIN_NAME_(port, pin) P##port##_##pin
