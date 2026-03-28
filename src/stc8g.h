@@ -75,8 +75,8 @@
 // EAXFR: extended RAM area special function register (XFR) access control bit.
 //    0: prohibit access to XFR
 //    1: Enable access to XFR.
-#define SFRX_ON()             (PSW2 |= 0x80)
-#define SFRX_OFF()            (PSW2 &= ~0x80)
+#define SFRX_ON()             (P_SW2 |= 0x80)
+#define SFRX_OFF()            (P_SW2 &= ~0x80)
 
 /******************************************************************************\
  * Public memory declarations
