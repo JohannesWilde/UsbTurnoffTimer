@@ -46,7 +46,7 @@ if __name__ == "__main__":
         if matchSfrx != None:
             label = matchSfrx.group(6)
             address = matchSfrx.group(5)
-            convertedLine = f"{matchSfrx.group(1)}SFR({label}, {address});\n"
+            convertedLine = f"{matchSfrx.group(1)}SFRX({label}, {address});\n"
             output += convertedLine
             lastRegisterAddress = int(address, 0)
             continue
