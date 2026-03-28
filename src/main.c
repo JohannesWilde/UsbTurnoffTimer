@@ -76,8 +76,7 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 {
     /* action to be taken when timer 0 overflows */
     COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull);
-    // milliseconds_ += 1000 / F_SYS_TICK;
-    PWR_SWITCH_PIN ^= 1;
+    milliseconds_ += 1000 / F_SYS_TICK;
 }
 
 
@@ -119,20 +118,20 @@ void main()
     interrupts(); // enable interrupts
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
-    // #define PRE_SCALER_INIT 1
-    // uint8_t preScaler = PRE_SCALER_INIT;
+    #define PRE_SCALER_INIT 50
+    uint8_t preScaler = PRE_SCALER_INIT;
     while (1)
     {
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
         // PCON |= (1 << 1);  // PCON.PD[1] = 1 - Enter power-down mode
 
-        // --preScaler;
+        --preScaler;
 
-        // if (0 == preScaler)
-        // {
-        //     preScaler = PRE_SCALER_INIT;
-        //     PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
-        // }
+        if (0 == preScaler)
+        {
+            preScaler = PRE_SCALER_INIT;
+            PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
+        }
         // delay(50);
 
         // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
