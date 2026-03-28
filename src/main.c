@@ -13,11 +13,10 @@ static void delay(unsigned int t)
     }
 }
 
-#define F_IRC 6000000  // Hz
-#define CLOCK_DIVISOR 4
-COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
-#define F_CPU F_IRC / (CLOCK_DIVISOR - 1)  // Hz
-#define F_SYS_TICK 100  // Hz
+#define F_IRC 24000000ull  // Hz
+#define CLOCK_DIVISOR 12
+#define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
+#define F_SYS_TICK 100ull  // Hz
 
 #define MAKE_PIN_NAME_(port, pin) P##port##_##pin
 #define MAKE_PIN_NAME(port, pin) MAKE_PIN_NAME_(port, pin)
@@ -76,8 +75,9 @@ Duration millis()
 void TM0_Isr(void) __interrupt (TF0_VECTOR)
 {
     /* action to be taken when timer 0 overflows */
-    COMPILE_TIME_ASSERT((1000 / F_SYS_TICK) * F_SYS_TICK == 1000);
-    milliseconds_ += 1000 / F_SYS_TICK;
+    COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull);
+    // milliseconds_ += 1000 / F_SYS_TICK;
+    PWR_SWITCH_PIN ^= 1;
 }
 
 
@@ -94,42 +94,45 @@ void main()
 
     SFRX_ON();
     // Precise timing is more important than less current for this application.
-    CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
-    CLKDIV = (CLOCK_DIVISOR - 1);
+    // CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
+    COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
+    CLKDIV = CLOCK_DIVISOR;
     // HIRCCR = 1 << 7; // ENHIRC[7]
     // IRC32KCR = 0 << 7; // ENIRC32K[7]
     SFRX_OFF();
 
-    // WKTCH[6:0], WKTCL[7:0]  ; WKTCH.WKTEN [7] Power-down wake-up timer enable bit
-    // 0x7FE = 2046 -> duration = (1 / /*wakeup timer frequency*/ 36.075 kHz) * (2046 + /*as per manual*/ 1) * /*as per manual*/ 16  which are approximately  1.1 s
-    WKTCL = 0xFE;
-    WKTCH = ((/*enabled*/ 0) << 7) | 0x07; // 1 - enabled, 0 - disabled
+    // // WKTCH[6:0], WKTCL[7:0]  ; WKTCH.WKTEN [7] Power-down wake-up timer enable bit
+    // // 0x7FE = 2046 -> duration = (1 / /*wakeup timer frequency*/ 36.075 kHz) * (2046 + /*as per manual*/ 1) * /*as per manual*/ 16  which are approximately  1.1 s
+    // WKTCL = 0xFE;
+    // WKTCH = ((/*enabled*/ 0) << 7) | 0x07; // 1 - enabled, 0 - disabled
 
-    TMOD = (0 * T0_GATE) | (0 * T0_CT) | (0 * T0_M1) | (0 * T0_M0); // un-gated [0], timer [0], 16-bit auto-reload [00]
-    AUXR &= ~(1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
-    #define TIMER0_COUNT (65536 - (F_CPU / 12 / F_SYS_TICK))
-    TH0 = TIMER0_COUNT / 256;
+    // TMOD = (0 * T0_GATE) | (0 * T0_CT) | (0 * T0_M1) | (0 * T0_M0); // un-gated [0], timer [0], 16-bit auto-reload [00]
+    // AUXR &= ~(1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
+    // AUXR |= (1 << 7);
+    #define TIMER0_COUNT (65536ull - (F_CPU / 12 / F_SYS_TICK))
+    // TR0 = 0; // Disable Timer0 so that the newly configured TH0 and TL0 will be used from the first cycle.
     TL0 = TIMER0_COUNT % 256;
+    TH0 = TIMER0_COUNT / 256;
     TR0 = 1; // Timer0 run control bit
     ET0 = 1; // Enable Timer0 interrupt.
 
     interrupts(); // enable interrupts
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
-    #define PRE_SCALER_INIT 100
-    uint8_t preScaler = PRE_SCALER_INIT;
+    // #define PRE_SCALER_INIT 1
+    // uint8_t preScaler = PRE_SCALER_INIT;
     while (1)
     {
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
         // PCON |= (1 << 1);  // PCON.PD[1] = 1 - Enter power-down mode
 
-        --preScaler;
+        // --preScaler;
 
-        if (0 == preScaler)
-        {
-            preScaler = PRE_SCALER_INIT;
-            PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
-        }
+        // if (0 == preScaler)
+        // {
+        //     preScaler = PRE_SCALER_INIT;
+        //     PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
+        // }
         // delay(50);
 
         // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
