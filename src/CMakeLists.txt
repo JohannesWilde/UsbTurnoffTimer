@@ -18,10 +18,10 @@ find_package(Python
 )
 
 if (NOT Python_Interpreter_FOUND)
-    message(WARNING " No Python interpreter found - programming via stcgal won't be possible.\n"
+    message(WARNING "No Python interpreter found - programming via stcgal won't be possible.\n"
                     "If Python is installed in an unusual place, please set the CMake variable Python_ROOT_DIR accordingly.")
 else ()
-    message(STATUS " Python found: ${Python_EXECUTABLE}")
+    message(STATUS "Python found: ${Python_EXECUTABLE}")
 
     # Check whether stcgal is installed in the found Python interpreter using pip.
     # Todo: should I use "python -c "import sys;exec(\"try:\n  import stcgal\n  result = 0\nexcept:\n  result = -1\"); exit(result)'"
@@ -34,14 +34,14 @@ else ()
     )
 
     if (NOT (0 EQUAL result))
-        message(WARNING " Failed to query list of installed Python packeges using pip [result: ${result}, error: ${error}].")
+        message(WARNING "Failed to query list of installed Python packeges using pip [result: ${result}, error: ${error}].")
     else ()
         set(STCGAL_PACKAGE_NAME "stcgal")
         if (NOT ("${output}" MATCHES "\n${STCGAL_PACKAGE_NAME}[ ]*[0-9\.]+\n"))
-            message(WARNING " Required package \"${STCGAL_PACKAGE_NAME}\" not found.")
+            message(WARNING "Required package \"${STCGAL_PACKAGE_NAME}\" not found.")
             message("pip list:\n${output}")
         else ()
-            message(STATUS " Required package ${STCGAL_PACKAGE_NAME} found.")
+            message(STATUS "Required package ${STCGAL_PACKAGE_NAME} found.")
 
             set(PROGRAMMER_BAUD_RATE "115200" CACHE STRING "Baud rate to be used by the programmer.")
             set(PROGRAMMER_PROTOCOL "stc8g" CACHE STRING "stcgal's protocol to use - it has to match the used device.")
