@@ -91,6 +91,8 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 }
 
 
+// Bit-banging I2C interface [send only for now].
+
 inline void i2cDelay_()
 {
     COMPILE_TIME_ASSERT((2000000 == F_CPU));
@@ -180,6 +182,85 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
 }
 
 
+// TM1637 driver
+
+static uint8_t tm1637DisplayData[4] = {0x00, }; // todo - unitialized data section?
+static uint8_t tm1637DisplayControl = 0; // remember On/Off and brightness as I can't read it back.
+
+
+void tm1637DataCommand(bool const fixedAddress, bool const readKeyAndDontWriteDisplay)
+{
+    uint8_t const value = /*data command*/ 0x40 |
+                           ((readKeyAndDontWriteDisplay ? 1 : 0) << 1) |
+                           ((fixedAddress ? 1 : 0) << 2); // |
+                           // ((/*test mode*/ false ? 1 : 0) << 3);
+
+    i2cStart();
+    uint8_t bytesWrittenSuccessfully = i2cWrite(&value, /*count*/ 1);
+    i2cStop();
+
+    while (1 != bytesWrittenSuccessfully)
+    {
+    }
+}
+
+/**
+ * Single segment:
+ *
+ *      A
+ *     ---
+ *  F |   | B
+ *     -G-
+ *  E |   | C
+ *     ---
+ *      D
+ *
+ * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
+ *
+ * [0] [1] : [2] [3]
+ *
+ * with ":" colon corresponding to the MSb of byte 1.
+ *
+ */
+void tm1637AddressCommand(uint8_t const address, uint8_t const * data, uint8_t const count)
+{
+    // No more than the first 4 bytes usable. Todo: remove this for release.
+    while (4 < (count + address))
+    {
+    }
+
+    uint8_t const value = /*address command*/ 0xc0 |
+                           (address & 0x0f);
+
+    i2cStart();
+    uint8_t bytesWrittenSuccessfully = i2cWrite(&value, /*count*/ 1);
+    while (1 != bytesWrittenSuccessfully)
+    {
+    }
+
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ count);
+    i2cStop();
+
+    while (count != bytesWrittenSuccessfully)
+    {
+    }
+}
+
+void tm1637DisplayCommand(bool const on, uint8_t const brightness)
+{
+    tm1637DisplayControl = /*display command*/ 0x80 |
+                           (brightness & 0x07) |
+                           ((on ? 1 : 0) << 3);
+
+    i2cStart();
+    uint8_t const bytesWrittenSuccessfully = i2cWrite(&tm1637DisplayControl, /*count*/ 1);
+    i2cStop();
+
+    while (1 != bytesWrittenSuccessfully)
+    {
+    }
+}
+
 
 void main()
 {
@@ -256,67 +337,14 @@ void main()
     interrupts(); // enable interrupts
 
 
-    #define TM1637_I2C_COMM1    0x40        // data command
-    #define TM1637_I2C_COMM2    0xC0        // display and control command
-    #define TM1637_I2C_COMM3    0x80        // address command
+    tm1637DisplayData[0] = (1 * 0x7f);
+    tm1637DisplayData[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
+    tm1637DisplayData[2] = (1 * 0x7f);
+    tm1637DisplayData[3] = (1 * 0x7f);
 
-    uint8_t data[6] = {0x00, };
-
-    data[0] = TM1637_I2C_COMM1 | (/*fixed address*/ 0 << 2);
-    i2cStart();
-    uint8_t bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
-    i2cStop();
-
-    while (1 != bytesWrittenSuccessfully)
-    {
-    }
-
-    data[0] = TM1637_I2C_COMM2 | /*address*/ 0;
-    i2cStart();
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
-
-    while (1 != bytesWrittenSuccessfully)
-    {
-    }
-
-    /**
-     * Single segment:
-     *
-     *      A
-     *     ---
-     *  F |   | B
-     *     -G-
-     *  E |   | C
-     *     ---
-     *      D
-     *
-     * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
-     *
-     * [0] [1] : [2] [3]
-     *
-     * with ":" colon corresponding to the MSb of byte 1.
-     *
-     */
-
-    data[0] = (1 * 0x7f);
-    data[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
-    data[2] = (1 * 0x7f);
-    data[3] = (1 * 0x7f);
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 4);
-    i2cStop();
-
-    while (4 != bytesWrittenSuccessfully)
-    {
-    }
-
-    data[0] = TM1637_I2C_COMM3 | /*on*/ 0x08 | /*brightness*/ 0x01;
-    i2cStart();
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
-    i2cStop();
-
-    while (1 != bytesWrittenSuccessfully)
-    {
-    }
+    tm1637DataCommand(/*fixedAddress*/ false, /*readKeyAndDontWriteDisplay*/ false);
+    tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
+    tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x01);
 
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
@@ -337,22 +365,17 @@ void main()
             PWR_SWITCH_PIN = newValue;  // Toggle P5.5
 
 
-            // Todo: cleanup....
-            data[0] = TM1637_I2C_COMM2 | /*address*/ 0x01;
-            i2cStart();
-            bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
 
-            while (1 != bytesWrittenSuccessfully)
+            if (0 != newValue)
             {
+                tm1637DisplayData[1] |= (1 * 0x80); // colon
+            }
+            else
+            {
+                tm1637DisplayData[1] &= ~(1 * 0x80); // colon
             }
 
-            data[0] = (1 * 0x7f) | (newValue * 0x80); // MSb is dots
-            bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
-            i2cStop();
-
-            while (1 != bytesWrittenSuccessfully)
-            {
-            }
+            tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
 
         }
         // delay(50);
