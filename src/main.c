@@ -257,6 +257,57 @@ void main()
 
     interrupts(); // enable interrupts
 
+
+    // // delay for startup of TM1637
+    // uint8_t blub = 255;
+    // while(0 != blub--)
+    // {
+    // }
+
+    #define TM1637_I2C_COMM1    0x40        // data command
+    #define TM1637_I2C_COMM2    0xC0        // display and control command
+    #define TM1637_I2C_COMM3    0x80        // address command
+
+    uint8_t data[4] = {0x00, };
+
+    data[0] = TM1637_I2C_COMM1;
+    i2cStart();
+    uint8_t bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
+    i2cStop();
+
+    while (1 != bytesWrittenSuccessfully)
+    {
+    }
+
+    data[0] = TM1637_I2C_COMM2;
+    data[1] = 0x00;
+    i2cStart();
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 2);
+
+    while (2 != bytesWrittenSuccessfully)
+    {
+    }
+
+    data[0] = 0x7f;
+    data[1] = 0x7f;
+    data[2] = 0x7f;
+    data[3] = 0x7f;
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 4);
+    i2cStop();
+
+    while (4 != bytesWrittenSuccessfully)
+    {
+    }
+
+    data[0] = TM1637_I2C_COMM3 | /*on*/ 0x08 | /*brightness*/ 0x07;
+    i2cStart();
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
+    i2cStop();
+
+    while (1 != bytesWrittenSuccessfully)
+    {
+    }
+
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     #define PRE_SCALER_INIT 50
     uint8_t preScaler = PRE_SCALER_INIT;
@@ -269,11 +320,6 @@ void main()
         if (0 == preScaler)
         {
             preScaler = PRE_SCALER_INIT;
-
-            uint8_t const data[] = {0x55, };
-            i2cStart();
-            uint8_t const bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
-            i2cStop();
 
             PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
         }
