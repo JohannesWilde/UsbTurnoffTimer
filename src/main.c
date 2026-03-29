@@ -5,15 +5,6 @@
 #include <stdint.h>
 
 
-static void delay(unsigned int t)
-{
-    while (t--)
-    {
-        volatile int i = 0xFFF;
-        while (i--);
-    }
-}
-
 #define F_IRC 24000000ull  // Hz
 #define CLOCK_DIVISOR 12
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
@@ -379,7 +370,6 @@ void main()
             tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
 
         }
-        // delay(50);
 
         // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
         // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
