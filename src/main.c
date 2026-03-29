@@ -61,7 +61,9 @@ inline void interrupts()
 }
 
 typedef uint32_t Duration;
-static volatile Duration milliseconds_ = 0;
+// Keep this static variable uninitialized for smaller code size.
+// It will be filled with 0s before the program is executed anyway.
+static volatile Duration milliseconds_;
 
 Duration millis()
 {
@@ -176,6 +178,7 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
 // TM1637 driver
 
 // Keep these static variables uninitialized for smaller code size.
+// They will be filled with 0s before the program is executed anyway.
 static uint8_t tm1637DisplayData[4]; // remember display data as I can't read it back
 static uint8_t tm1637DisplayControl; // remember On/Off and brightness as I can't read it back.
 
