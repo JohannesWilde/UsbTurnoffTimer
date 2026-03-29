@@ -1,5 +1,7 @@
 
 add_executable(${PROJECT_NAME}
+    buttontimed.c
+    buttontimed.h
     main.c
     stc8g.h
 )

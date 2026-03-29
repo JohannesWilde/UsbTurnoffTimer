@@ -1,3 +1,4 @@
+#include "buttontimed.h"
 #include "static_assert.h"
 #include "stc8g.h"
 
@@ -82,6 +83,28 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
     /* action to be taken when timer 0 overflows */
     COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull); // Prevent numeric precision loss in accumulation of ms.
     milliseconds_ += 1000 / F_SYS_TICK;
+}
+
+ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
+{
+    // 100 Hz update rate
+    COMPILE_TIME_ASSERT(100 == F_SYS_TICK);
+
+    ButtonStateDuration duration = buttonDurationTooShort;
+    if (50 < rawDuration) // 500 ms
+    {
+        duration = buttonDurationLong;
+    }
+    else if (5 < rawDuration) // 50 ms -> debounce
+    {
+        duration = buttonDurationShort;
+    }
+    else
+    {
+        // duration = buttonDurationTooShort;
+    }
+
+    return duration;
 }
 
 
@@ -373,6 +396,11 @@ inline void tm1637Show()
 }
 
 
+// button
+static ButtonTimed pushButton;
+
+
+
 void main()
 {
     // Set DATA and CLK to HIGH while they are still high impedance, so that open-drain configuration keeps them there.
@@ -458,20 +486,30 @@ void main()
     tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x01);
 
 
+    // buttonTimedInit(&pushButton);
+
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     #define PRE_SCALER_INIT 50
     uint8_t preScaler = PRE_SCALER_INIT;
     while (true)
     {
 
+        buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
+
+        if (buttonReleasedAfterShort(&pushButton))
+        {
+            PWR_SWITCH_PIN = 1;  // Toggle P5.5
+        }
+        else if (buttonReleasedAfterLong(&pushButton))
+        {
+            PWR_SWITCH_PIN = 0;
+        }
+
         --preScaler;
 
         if (0 == preScaler)
         {
             preScaler = PRE_SCALER_INIT;
-
-            // PWR_SWITCH_PIN = newValue;  // Toggle P5.5
-
 
             tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
             // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
