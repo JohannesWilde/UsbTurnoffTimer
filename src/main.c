@@ -93,6 +93,12 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 
 void main()
 {
+    // Set DATA and CLK to HIGH while they are still high impedance, so that open-drain configuration keeps them there.
+    // Both being high is the IDLE state of the I2C "bus" [no address for the TM1637, so only 2 users].
+    SEVEN_SEGMENT_DATA_PIN = 1;
+    SEVEN_SEGMENT_CLK_PIN = 1;
+
+
     COMPILE_TIME_ASSERT((0 <= PWR_SWITCH_PIN_NUMBER) && (8 > PWR_SWITCH_PIN_NUMBER));
     COMPILE_TIME_ASSERT(1 == PWR_SWITCH_PORT_NUMBER);
 
