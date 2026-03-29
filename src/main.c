@@ -1,6 +1,7 @@
 #include "static_assert.h"
 #include "stc8g.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -87,6 +88,97 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
     /* action to be taken when timer 0 overflows */
     COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull); // Prevent numeric precision loss in accumulation of ms.
     milliseconds_ += 1000 / F_SYS_TICK;
+}
+
+
+inline void i2cDelay_()
+{
+    COMPILE_TIME_ASSERT((2000000 == F_CPU));
+    // // Fast [5 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
+    // NOP();
+    // NOP();
+    // NOP();
+
+    // Slow [100 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
+    uint8_t value = 23;
+    while (0 != value)
+    {
+        --value;
+    }
+}
+
+void i2cStart()
+{
+    // CLK high, DIO high -> low
+    SEVEN_SEGMENT_DATA_PIN = 0;
+    i2cDelay_();
+}
+
+void i2cStop()
+{
+    // To end acknowledgement from TM1637 another CLK pulse seems to be required before stop.
+    SEVEN_SEGMENT_CLK_PIN = 0;
+    i2cDelay_();
+    SEVEN_SEGMENT_CLK_PIN = 1;
+    i2cDelay_();
+    // Actual stop:  CLK high, DIO low -> high
+    SEVEN_SEGMENT_DATA_PIN = 1;
+    i2cDelay_();
+}
+
+uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
+{
+    uint8_t numberOfBytesSuccessfullyWritten = 0;
+    while (count > numberOfBytesSuccessfullyWritten)
+    {
+        uint8_t datum = data[numberOfBytesSuccessfullyWritten];
+        uint8_t numberBitsToSend = 8;
+        do
+        {
+            // pull down CLK
+            SEVEN_SEGMENT_CLK_PIN = 0;
+
+            // set bit
+            SEVEN_SEGMENT_DATA_PIN = datum & 0x01; // LSb first
+
+            // CLK-low-pulse width
+            i2cDelay_();
+
+            // release CLK up
+            SEVEN_SEGMENT_CLK_PIN = 1;
+
+            // Shift datum right 1 bit [do so at the HIGH CLK, as we set DATA during LOW CLK].
+            datum >>= 1;
+
+            // Let the counterpart sample the data.
+            i2cDelay_();
+
+            --numberBitsToSend;
+        }
+        while (0 < numberBitsToSend);
+
+        // release data line
+        SEVEN_SEGMENT_DATA_PIN = 1;
+        // Read in ACK.
+        SEVEN_SEGMENT_CLK_PIN = 0;
+        i2cDelay_();
+        SEVEN_SEGMENT_CLK_PIN = 1;
+        i2cDelay_();
+
+        uint8_t const ack = SEVEN_SEGMENT_DATA_PIN;
+
+        bool const successfullySentByte = (0 == ack);
+
+        if (successfullySentByte)
+        {
+            ++numberOfBytesSuccessfullyWritten;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return numberOfBytesSuccessfullyWritten;
 }
 
 
@@ -177,6 +269,12 @@ void main()
         if (0 == preScaler)
         {
             preScaler = PRE_SCALER_INIT;
+
+            uint8_t const data[] = {0x55, };
+            i2cStart();
+            uint8_t const bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
+            i2cStop();
+
             PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
         }
         // delay(50);
