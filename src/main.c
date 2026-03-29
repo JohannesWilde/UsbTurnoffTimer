@@ -94,17 +94,10 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 inline void i2cDelay_()
 {
     COMPILE_TIME_ASSERT((2000000 == F_CPU));
-    // // Fast [5 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
-    // NOP();
-    // NOP();
-    // NOP();
-
-    // Slow [50 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
-    uint8_t value = 10;
-    while (0 != value)
-    {
-        --value;
-    }
+    // Fast [5 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
+    NOP();
+    NOP();
+    NOP();
 }
 
 void i2cStart()
