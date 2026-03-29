@@ -362,6 +362,11 @@ void tm1637RenderColon(bool const enabled)
     }
 }
 
+bool tm1637GetRenderColon()
+{
+    return /*0 != */(tm1637DisplayData[1] & 0x80);
+}
+
 inline void tm1637Show()
 {
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
@@ -456,7 +461,7 @@ void main()
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     #define PRE_SCALER_INIT 50
     uint8_t preScaler = PRE_SCALER_INIT;
-    while (1)
+    while (true)
     {
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
 
@@ -466,19 +471,10 @@ void main()
         {
             preScaler = PRE_SCALER_INIT;
 
-            uint8_t const newValue = (0 != PWR_SWITCH_PIN) ? 0 : 1;
+            // PWR_SWITCH_PIN = newValue;  // Toggle P5.5
 
-            PWR_SWITCH_PIN = newValue;  // Toggle P5.5
 
-            if (0 != newValue)
-            {
-                tm1637DisplayData[1] |= (1 * 0x80); // colon
-            }
-            else
-            {
-                tm1637DisplayData[1] &= ~(1 * 0x80); // colon
-            }
-
+            tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
             // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
 
             Duration const duration = millis();
