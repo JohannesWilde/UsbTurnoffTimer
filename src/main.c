@@ -271,6 +271,7 @@ typedef enum
     tm1637Character_f = 15,
     tm1637Character_minus = 16,
     tm1637Character_none = 17,
+    tm1637Character_l = 18,
 } Tm1637Character;
 
 
@@ -313,6 +314,7 @@ static uint8_t const tm1637Characters[] =
     0b01110001,    // F
     0b01000000,    // -
     0b00000000,    //
+    0b00111000,    // L
 };
 
 void tm1637RenderTime(Duration const * const duration)
