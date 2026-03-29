@@ -269,7 +269,7 @@ void main()
 
     uint8_t data[6] = {0x00, };
 
-    data[0] = TM1637_I2C_COMM1;
+    data[0] = TM1637_I2C_COMM1 | (/*fixed address*/ 0 << 2);
     i2cStart();
     uint8_t bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
     i2cStop();
@@ -278,12 +278,11 @@ void main()
     {
     }
 
-    data[0] = TM1637_I2C_COMM2;
-    data[1] = 0x00;
+    data[0] = TM1637_I2C_COMM2 | /*address*/ 0;
     i2cStart();
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 2);
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
 
-    while (2 != bytesWrittenSuccessfully)
+    while (1 != bytesWrittenSuccessfully)
     {
     }
 
@@ -300,24 +299,22 @@ void main()
      *
      * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
      *
-     * [5] [0] : [1] [2]
+     * [0] [1] : [2] [3]
      *
-     * with ":" colon corresponding to the MSb of byte 0.
+     * with ":" colon corresponding to the MSb of byte 1.
      *
      */
 
-    data[0] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
-    data[1] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
-    data[2] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
-    data[3] = (0 * 0x7f) | (0 * 0x80); // MSb is dots
-    data[4] = (0 * 0x7f) | (0 * 0x80); // MSb is dots
-    data[5] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 6);
+    data[0] = (1 * 0x7f);
+    data[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
+    data[2] = (1 * 0x7f);
+    data[3] = (1 * 0x7f);
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 4);
     i2cStop();
 
-    // while (1 != bytesWrittenSuccessfully)
-    // {
-    // }
+    while (4 != bytesWrittenSuccessfully)
+    {
+    }
 
     data[0] = TM1637_I2C_COMM3 | /*on*/ 0x08 | /*brightness*/ 0x01;
     i2cStart();
@@ -342,7 +339,28 @@ void main()
         {
             preScaler = PRE_SCALER_INIT;
 
-            PWR_SWITCH_PIN = (0 != PWR_SWITCH_PIN) ? 0 : 1;  // Toggle P5.5
+            uint8_t const newValue = (0 != PWR_SWITCH_PIN) ? 0 : 1;
+
+            PWR_SWITCH_PIN = newValue;  // Toggle P5.5
+
+
+            // Todo: cleanup....
+            data[0] = TM1637_I2C_COMM2 | /*address*/ 0x01;
+            i2cStart();
+            bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
+
+            while (1 != bytesWrittenSuccessfully)
+            {
+            }
+
+            data[0] = (1 * 0x7f) | (newValue * 0x80); // MSb is dots
+            bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
+            i2cStop();
+
+            while (1 != bytesWrittenSuccessfully)
+            {
+            }
+
         }
         // delay(50);
 
