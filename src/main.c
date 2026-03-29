@@ -98,6 +98,23 @@ void main()
     SEVEN_SEGMENT_DATA_PIN = 1;
     SEVEN_SEGMENT_CLK_PIN = 1;
 
+    SFRX_ON();
+    // Pull-Up resistors enabled for push-button [which closes to GND] and I2C signals [which are open drain].
+    P3PU = (1 << PUSH_BUTTON_PIN_NUMBER) |
+           (1 << SEVEN_SEGMENT_DATA_PIN_NUMBER) |
+           (1 << SEVEN_SEGMENT_CLK_PIN_NUMBER);
+    // Pull-Up resistors enabled for rotary encoder signals.
+    P5PU = (1 << ROTARY_ENCODER_A_PIN_NUMBER) |
+           (1 << ROTARY_ENCODER_B_PIN_NUMBER);
+
+    // Precise timing is more important than less current for this application.
+    // CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
+    COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
+    CLKDIV = CLOCK_DIVISOR;
+    // HIRCCR = 1 << 7; // ENHIRC[7]
+    // IRC32KCR = 0 << 7; // ENIRC32K[7]
+    SFRX_OFF();
+
 
     COMPILE_TIME_ASSERT((0 <= PWR_SWITCH_PIN_NUMBER) && (8 > PWR_SWITCH_PIN_NUMBER));
     COMPILE_TIME_ASSERT(1 == PWR_SWITCH_PORT_NUMBER);
@@ -136,23 +153,6 @@ void main()
     //        ((DIO_MODE_HIGH_Z_INPUT_M1 << ROTARY_ENCODER_B_PIN_NUMBER) | ~(1 << ROTARY_ENCODER_B_PIN_NUMBER));
 
     PWR_SWITCH_PIN = 1; // PWR_SWITCH
-
-    SFRX_ON();
-    // Pull-Up resistors enabled for push-button [which closes to GND] and I2C signals [which are open drain].
-    P3PU = (1 << PUSH_BUTTON_PIN_NUMBER) |
-           (1 << SEVEN_SEGMENT_DATA_PIN_NUMBER) |
-           (1 << SEVEN_SEGMENT_CLK_PIN_NUMBER);
-    // Pull-Up resistors enabled for rotary encoder signals.
-    P5PU = (1 << ROTARY_ENCODER_A_PIN_NUMBER) |
-           (1 << ROTARY_ENCODER_B_PIN_NUMBER);
-
-    // Precise timing is more important than less current for this application.
-    // CLKSEL = 0b00; // 0b00 - internal high-precision IRC, 0b11 - internal 32KHz low speed IRC
-    COMPILE_TIME_ASSERT(0 < CLOCK_DIVISOR);
-    CLKDIV = CLOCK_DIVISOR;
-    // HIRCCR = 1 << 7; // ENHIRC[7]
-    // IRC32KCR = 0 << 7; // ENIRC32K[7]
-    SFRX_OFF();
 
     // TMOD = (0 * T0_GATE) | (0 * T0_CT) | (0 * T0_M1) | (0 * T0_M0); // un-gated [0], timer [0], 16-bit auto-reload [00]
     // AUXR &= ~(1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
