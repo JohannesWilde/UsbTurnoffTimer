@@ -99,8 +99,8 @@ inline void i2cDelay_()
     // NOP();
     // NOP();
 
-    // Slow [100 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
-    uint8_t value = 23;
+    // Slow [50 us pulse width for 50:50 duty cycle pulses -> period 2-times as long].
+    uint8_t value = 10;
     while (0 != value)
     {
         --value;
@@ -139,7 +139,7 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
             SEVEN_SEGMENT_CLK_PIN = 0;
 
             // set bit
-            SEVEN_SEGMENT_DATA_PIN = datum & 0x01; // LSb first
+            SEVEN_SEGMENT_DATA_PIN = datum & 0x80; // MSb first
 
             // CLK-low-pulse width
             i2cDelay_();
@@ -148,7 +148,7 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
             SEVEN_SEGMENT_CLK_PIN = 1;
 
             // Shift datum right 1 bit [do so at the HIGH CLK, as we set DATA during LOW CLK].
-            datum >>= 1;
+            datum <<= 1;
 
             // Let the counterpart sample the data.
             i2cDelay_();
@@ -258,11 +258,11 @@ void main()
     interrupts(); // enable interrupts
 
 
-    // // delay for startup of TM1637
-    // uint8_t blub = 255;
-    // while(0 != blub--)
-    // {
-    // }
+    // delay for startup of TM1637
+    uint8_t blub = 255;
+    while(0 != blub--)
+    {
+    }
 
     #define TM1637_I2C_COMM1    0x40        // data command
     #define TM1637_I2C_COMM2    0xC0        // display and control command
@@ -307,6 +307,7 @@ void main()
     while (1 != bytesWrittenSuccessfully)
     {
     }
+
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     #define PRE_SCALER_INIT 50
