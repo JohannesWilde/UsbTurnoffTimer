@@ -117,8 +117,9 @@ void main()
            ((DIO_MODE_OPEN_DRAIN_M1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER) | ~(1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER)) &
            ((DIO_MODE_OPEN_DRAIN_M1 << SEVEN_SEGMENT_CLK_PIN_NUMBER) | ~(1 << SEVEN_SEGMENT_CLK_PIN_NUMBER));
 
-    // Pull-Up resistors enabled for I2C signals [which are open drain].
-    P3PU = (1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER) |
+    // Pull-Up resistors enabled for push-button [which closes to GND] and I2C signals [which are open drain].
+    P3PU = (1 << PUSH_BUTTON_PIN_NUMBER) |
+           (1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER) |
            (1 << SEVEN_SEGMENT_CLK_PIN_NUMBER);
 
 
@@ -134,7 +135,9 @@ void main()
     //        ((DIO_MODE_HIGH_Z_INPUT_M1 << ROTARY_ENCODER_A_PIN_NUMBER) | ~(1 << ROTARY_ENCODER_A_PIN_NUMBER)) &
     //        ((DIO_MODE_HIGH_Z_INPUT_M1 << ROTARY_ENCODER_B_PIN_NUMBER) | ~(1 << ROTARY_ENCODER_B_PIN_NUMBER));
 
-
+    // Pull-Up resistors enabled for rotary encoder signals.
+    P5PU = (1 << ROTARY_ENCODER_A_PIN_NUMBER) |
+           (1 << ROTARY_ENCODER_B_PIN_NUMBER);
 
 
     PWR_SWITCH_PIN = 1; // PWR_SWITCH
