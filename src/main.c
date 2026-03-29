@@ -118,9 +118,14 @@ void i2cStop()
 {
     // To end acknowledgement from TM1637 another CLK pulse seems to be required before stop.
     SEVEN_SEGMENT_CLK_PIN = 0;
+
+    // Prepare DATA for stop-condition while CLK LOW.
+    SEVEN_SEGMENT_DATA_PIN = 0;
+
     i2cDelay_();
     SEVEN_SEGMENT_CLK_PIN = 1;
     i2cDelay_();
+
     // Actual stop:  CLK high, DIO low -> high
     SEVEN_SEGMENT_DATA_PIN = 1;
     i2cDelay_();
