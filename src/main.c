@@ -117,6 +117,7 @@ void main()
            ((DIO_MODE_OPEN_DRAIN_M1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER) | ~(1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER)) &
            ((DIO_MODE_OPEN_DRAIN_M1 << SEVEN_SEGMENT_CLK_PIN_NUMBER) | ~(1 << SEVEN_SEGMENT_CLK_PIN_NUMBER));
 
+    // Pull-Up resistors enabled for I2C signals [which are open drain].
     P3PU = (1 << SEVEN_SEGMENT_MOSI_PIN_NUMBER) |
            (1 << SEVEN_SEGMENT_CLK_PIN_NUMBER);
 
