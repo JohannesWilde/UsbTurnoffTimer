@@ -55,7 +55,6 @@ else ()
                                 --protocol ${PROGRAMMER_PROTOCOL} $<TARGET_FILE:${PROJECT_NAME}>
                               DEPENDS ${PROJECT_NAME}
                               COMMENT "Going to program $<TARGET_FILE:${PROJECT_NAME}> via ${PROGRAMMER_COM_PORT}."
-                              SOURCES $<TARGET_FILE:${PROJECT_NAME}>
             )
 
         endif ()
