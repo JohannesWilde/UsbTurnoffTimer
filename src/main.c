@@ -194,9 +194,11 @@ void tm1637DataCommand(bool const fixedAddress, bool const readKeyAndDontWriteDi
     uint8_t bytesWrittenSuccessfully = i2cWrite(&value, /*count*/ 1);
     i2cStop();
 
+    #ifndef NDEBUG
     while (1 != bytesWrittenSuccessfully)
     {
     }
+    #endif // NDEBUG
 }
 
 /**
@@ -219,26 +221,34 @@ void tm1637DataCommand(bool const fixedAddress, bool const readKeyAndDontWriteDi
  */
 void tm1637AddressCommand(uint8_t const address, uint8_t const * data, uint8_t const count)
 {
-    // No more than the first 4 bytes usable. Todo: remove this for release.
+    #ifndef NDEBUG
+    // No more than the first 4 bytes usable.
     while (4 < (count + address))
     {
     }
+    #endif // NDEBUG
 
     uint8_t const value = /*address command*/ 0xc0 |
                            (address & 0x0f);
 
     i2cStart();
     uint8_t bytesWrittenSuccessfully = i2cWrite(&value, /*count*/ 1);
+
+    #ifndef NDEBUG
     while (1 != bytesWrittenSuccessfully)
     {
     }
+    #endif // NDEBUG
+
 
     bytesWrittenSuccessfully = i2cWrite(data, /*count*/ count);
     i2cStop();
 
+    #ifndef NDEBUG
     while (count != bytesWrittenSuccessfully)
     {
     }
+    #endif // NDEBUG
 }
 
 void tm1637DisplayCommand(bool const on, uint8_t const brightness)
@@ -251,9 +261,11 @@ void tm1637DisplayCommand(bool const on, uint8_t const brightness)
     uint8_t const bytesWrittenSuccessfully = i2cWrite(&tm1637DisplayControl, /*count*/ 1);
     i2cStop();
 
+    #ifndef NDEBUG
     while (1 != bytesWrittenSuccessfully)
     {
     }
+    #endif // NDEBUG
 }
 
 
