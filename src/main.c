@@ -463,7 +463,6 @@ void main()
     uint8_t preScaler = PRE_SCALER_INIT;
     while (true)
     {
-        PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
 
         --preScaler;
 
@@ -503,5 +502,7 @@ void main()
         // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
         // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
         // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
+
+        PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
     }
 }
