@@ -263,12 +263,6 @@ void main()
     interrupts(); // enable interrupts
 
 
-    // delay for startup of TM1637
-    uint8_t blub = 255;
-    while(0 != blub--)
-    {
-    }
-
     #define TM1637_I2C_COMM1    0x40        // data command
     #define TM1637_I2C_COMM2    0xC0        // display and control command
     #define TM1637_I2C_COMM3    0x80        // address command
