@@ -32,7 +32,7 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
 
         if (stateA != stateB)
         {
-            if (CHAR_MAX > rotaryEncoder->rotation)
+            if (SCHAR_MAX > rotaryEncoder->rotation)
             {
                 rotaryEncoder->rotation += 1;
             }
@@ -43,7 +43,7 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
         }
         else // (stateA == stateB)
         {
-            if (CHAR_MIN < rotaryEncoder->rotation)
+            if (SCHAR_MIN < rotaryEncoder->rotation)
             {
                 rotaryEncoder->rotation -= 1;
             }
@@ -53,33 +53,33 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
             }
         }
     }
-    // else if (toggledB)
-    // {
-    //     rotaryEncoder->stateBPrevious = stateB;
+    else if (toggledB)
+    {
+        rotaryEncoder->stateBPrevious = stateB;
 
-    //     if (stateA == stateB)
-    //     {
-    //         if (CHAR_MAX > rotaryEncoder->rotation)
-    //         {
-    //             rotaryEncoder->rotation += 1;
-    //         }
-    //         else
-    //         {
-    //             // intentionally empty
-    //         }
-    //     }
-    //     else // (stateA != stateB)
-    //     {
-    //         if (CHAR_MIN < rotaryEncoder->rotation)
-    //         {
-    //             rotaryEncoder->rotation -= 1;
-    //         }
-    //         else
-    //         {
-    //             // intentionally empty
-    //         }
-    //     }
-    // }
+        if (stateA == stateB)
+        {
+            if (SCHAR_MAX > rotaryEncoder->rotation)
+            {
+                rotaryEncoder->rotation += 1;
+            }
+            else
+            {
+                // intentionally empty
+            }
+        }
+        else // (stateA != stateB)
+        {
+            if (SCHAR_MIN < rotaryEncoder->rotation)
+            {
+                rotaryEncoder->rotation -= 1;
+            }
+            else
+            {
+                // intentionally empty
+            }
+        }
+    }
     else
     {
         // intentionally empty
