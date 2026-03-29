@@ -144,7 +144,7 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
             SEVEN_SEGMENT_CLK_PIN = 0;
 
             // set bit
-            SEVEN_SEGMENT_DATA_PIN = datum & 0x80; // MSb first
+            SEVEN_SEGMENT_DATA_PIN = datum & 0x01; // LSb first
 
             // CLK-low-pulse width
             i2cDelay_();
@@ -153,7 +153,7 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
             SEVEN_SEGMENT_CLK_PIN = 1;
 
             // Shift datum right 1 bit [do so at the HIGH CLK, as we set DATA during LOW CLK].
-            datum <<= 1;
+            datum >>= 1;
 
             // Let the counterpart sample the data.
             i2cDelay_();
