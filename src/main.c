@@ -201,24 +201,6 @@ void tm1637DataCommand(bool const fixedAddress, bool const readKeyAndDontWriteDi
     #endif // NDEBUG
 }
 
-/**
- * Single segment:
- *
- *      A
- *     ---
- *  F |   | B
- *     -G-
- *  E |   | C
- *     ---
- *      D
- *
- * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
- *
- * [0] [1] : [2] [3]
- *
- * with ":" colon corresponding to the MSb of byte 1.
- *
- */
 void tm1637AddressCommand(uint8_t const address, uint8_t const * data, uint8_t const count)
 {
     #ifndef NDEBUG
@@ -267,6 +249,68 @@ void tm1637DisplayCommand(bool const on, uint8_t const brightness)
     }
     #endif // NDEBUG
 }
+
+typedef enum
+{
+    n0 = 0,
+    n1 = 1,
+    n2 = 2,
+    n3 = 3,
+    n4 = 4,
+    n5 = 5,
+    n6 = 6,
+    n7= 7,
+    n8= 8,
+    n9= 9,
+    a = 10,
+    b = 11,
+    c = 12,
+    d = 13,
+    e = 14,
+    f = 15,
+    minus = 16,
+} Tm1637Character;
+
+
+/**
+ * Single segment:
+ *
+ *      A
+ *     ---
+ *  F |   | B
+ *     -G-
+ *  E |   | C
+ *     ---
+ *      D
+ *
+ * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
+ *
+ * [0] [1] : [2] [3]
+ *
+ * with ":" colon corresponding to the MSb of byte 1.
+ *
+ */
+static uint8_t const tm1637Characters[] =
+{
+    // GFEDCBA
+    0b00111111,    // 0
+    0b00000110,    // 1
+    0b01011011,    // 2
+    0b01001111,    // 3
+    0b01100110,    // 4
+    0b01101101,    // 5
+    0b01111101,    // 6
+    0b00000111,    // 7
+    0b01111111,    // 8
+    0b01101111,    // 9
+    0b01110111,    // A
+    0b01111100,    // b
+    0b00111001,    // C
+    0b01011110,    // d
+    0b01111001,    // E
+    0b01110001,    // F
+    0b01000000,    // -
+};
 
 
 void main()
