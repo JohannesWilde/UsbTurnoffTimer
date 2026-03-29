@@ -273,7 +273,7 @@ void main()
     #define TM1637_I2C_COMM2    0xC0        // display and control command
     #define TM1637_I2C_COMM3    0x80        // address command
 
-    uint8_t data[4] = {0x00, };
+    uint8_t data[6] = {0x00, };
 
     data[0] = TM1637_I2C_COMM1;
     i2cStart();
@@ -293,18 +293,39 @@ void main()
     {
     }
 
-    data[0] = 0x7f;
-    data[1] = 0x7f;
-    data[2] = 0x7f;
-    data[3] = 0x7f;
-    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 4);
+    /**
+     * Single segment:
+     *
+     *      A
+     *     ---
+     *  F |   | B
+     *     -G-
+     *  E |   | C
+     *     ---
+     *      D
+     *
+     * PCB 7-segments according to addresses in SRAM [commands 0xC0 bis 0xC5]:
+     *
+     * [5] [0] : [1] [2]
+     *
+     * with ":" colon corresponding to the MSb of byte 0.
+     *
+     */
+
+    data[0] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
+    data[1] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
+    data[2] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
+    data[3] = (0 * 0x7f) | (0 * 0x80); // MSb is dots
+    data[4] = (0 * 0x7f) | (0 * 0x80); // MSb is dots
+    data[5] = (1 * 0x7f) | (0 * 0x80); // MSb is dots
+    bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 6);
     i2cStop();
 
-    while (4 != bytesWrittenSuccessfully)
-    {
-    }
+    // while (1 != bytesWrittenSuccessfully)
+    // {
+    // }
 
-    data[0] = TM1637_I2C_COMM3 | /*on*/ 0x08 | /*brightness*/ 0x07;
+    data[0] = TM1637_I2C_COMM3 | /*on*/ 0x08 | /*brightness*/ 0x01;
     i2cStart();
     bytesWrittenSuccessfully = i2cWrite(data, /*count*/ 1);
     i2cStop();
