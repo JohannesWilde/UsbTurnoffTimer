@@ -362,6 +362,11 @@ void tm1637RenderColon(bool const enabled)
     }
 }
 
+inline void tm1637Show()
+{
+    tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
+}
+
 
 void main()
 {
@@ -479,7 +484,7 @@ void main()
             Duration const duration = millis();
             tm1637RenderTime(&duration);
 
-            tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
+            tm1637Show();
 
         }
 
