@@ -8,21 +8,24 @@ typedef enum
 {
     buttonDown = 0,
     buttonUp = 1,
-} ButtonState;
+}
+ButtonState;
 
 typedef enum
 {
     buttonDurationTooShort,
     buttonDurationShort,
     buttonDurationLong,
-} ButtonStateDuration;
+}
+ButtonStateDuration;
 
 typedef struct
 {
     ButtonState state;
     uint8_t duration;
     uint8_t previousDuration;
-} ButtonTimed;
+}
+ButtonTimed;
 
 
 void buttonTimedInit(ButtonTimed * button);

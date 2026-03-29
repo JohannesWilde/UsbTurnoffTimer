@@ -3,6 +3,8 @@ add_executable(${PROJECT_NAME}
     buttontimed.c
     buttontimed.h
     main.c
+    rotaryencoder.c
+    rotaryencoder.h
     stc8g.h
 )
 

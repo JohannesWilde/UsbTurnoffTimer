@@ -1,4 +1,5 @@
 #include "buttontimed.h"
+#include "rotaryencoder.h"
 #include "static_assert.h"
 #include "stc8g.h"
 
@@ -396,9 +397,9 @@ inline void tm1637Show()
 }
 
 
-// button
+// HW inputs
 static ButtonTimed pushButton;
-
+static RotaryEncoder rotaryEncoder;
 
 
 void main()
@@ -485,31 +486,45 @@ void main()
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
     tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x01);
 
-
     // buttonTimedInit(&pushButton);
+    rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     #define PRE_SCALER_INIT 50
     uint8_t preScaler = PRE_SCALER_INIT;
     while (true)
     {
-
+        rotaryEncoderUpdate(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
         buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
-        if (buttonReleasedAfterShort(&pushButton))
-        {
-            PWR_SWITCH_PIN = 1;  // Toggle P5.5
-        }
-        else if (buttonReleasedAfterLong(&pushButton))
-        {
-            PWR_SWITCH_PIN = 0;
-        }
+        // if (buttonReleasedAfterShort(&pushButton))
+        // {
+        //     PWR_SWITCH_PIN = 1;
+        // }
+        // else if (buttonReleasedAfterLong(&pushButton))
+        // {
+        //     PWR_SWITCH_PIN = 0;
+        // }
 
         --preScaler;
 
         if (0 == preScaler)
         {
             preScaler = PRE_SCALER_INIT;
+
+            int8_t const rotation = getAndResetAccumulatedRotation(&rotaryEncoder);
+            if (0 < rotation)
+            {
+                PWR_SWITCH_PIN = 1;
+            }
+            else if (0 > rotation)
+            {
+                PWR_SWITCH_PIN = 0;
+            }
+            else
+            {
+                // intentionally empty
+            }
 
             tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
             // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
