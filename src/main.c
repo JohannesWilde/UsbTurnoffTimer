@@ -328,20 +328,23 @@ void tm1637RenderTime(Duration const * const duration)
     else
     {
         Duration durationCopy = *duration;
-        // milliseconds -> seconds
-        durationCopy /= 1000;
-        uint8_t const seconds = durationCopy % 60;
-        // seconds -> minutes
-        durationCopy /= 60;
+        // // milliseconds -> seconds
+        // durationCopy /= 1000;
+        // uint8_t const seconds = durationCopy % 60;
+        // // seconds -> minutes
+        // durationCopy /= 60;
+        Duration const divisor = 60000ull;
+        // milliseconds -> minutes
+        durationCopy /= divisor;
         uint8_t const minutes = durationCopy % 60;
         // minutes -> hours
         durationCopy /= 60;
         uint8_t const hours = durationCopy;
 
-        tm1637DisplayData[0] = tm1637Characters[minutes / 10];
-        tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[minutes % 10];
-        tm1637DisplayData[2] = tm1637Characters[seconds / 10];
-        tm1637DisplayData[3] = tm1637Characters[seconds % 10];
+        tm1637DisplayData[0] = tm1637Characters[hours / 10];
+        tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[hours % 10];
+        tm1637DisplayData[2] = tm1637Characters[minutes / 10];
+        tm1637DisplayData[3] = tm1637Characters[minutes % 10];
     }
 }
 
@@ -470,7 +473,6 @@ void main()
             }
 
             // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-
 
             Duration const duration = millis();
             tm1637RenderTime(&duration);
