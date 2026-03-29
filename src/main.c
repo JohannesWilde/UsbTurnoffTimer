@@ -184,8 +184,9 @@ uint8_t i2cWrite(uint8_t const * const data, uint8_t const count)
 
 // TM1637 driver
 
-static uint8_t tm1637DisplayData[4] = {0x00, }; // todo - unitialized data section?
-static uint8_t tm1637DisplayControl = 0; // remember On/Off and brightness as I can't read it back.
+// Keep these static variables uninitialized for smaller code size.
+static uint8_t tm1637DisplayData[4]; // remember display data as I can't read it back
+static uint8_t tm1637DisplayControl; // remember On/Off and brightness as I can't read it back.
 
 
 void tm1637DataCommand(bool const fixedAddress, bool const readKeyAndDontWriteDisplay)
