@@ -562,12 +562,12 @@ void main()
 
         if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
-            // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT.
+            // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1).
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
             if (updatePrescaler(&preScalerTwo, PRE_SCALER_TWO_INIT))
             {
-                // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT.
+                // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1).
 
 
                 // if (buttonReleasedAfterShort(&pushButton))
@@ -581,7 +581,7 @@ void main()
 
                 if (updatePrescaler(&preScalerThree, PRE_SCALER_THREE_INIT))
                 {
-                  // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT / PRE_SCALER_THREE_INIT.
+                  // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1) / (PRE_SCALER_THREE_INIT + 1).
 
                     PWR_SWITCH_PIN ^= 1;
                 }
