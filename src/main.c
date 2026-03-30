@@ -572,7 +572,13 @@ void main()
                 // intentionally empty
             }
 
+            if (buttonReleasedAfterShort(&pushButton))
+            {
+                rotationMax = SCHAR_MIN;
+                rotationMin = SCHAR_MAX;
 
+                tm1637RenderNumberSigned(0);
+            }
 
             // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
             int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
