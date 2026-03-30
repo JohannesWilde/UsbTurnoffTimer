@@ -528,37 +528,56 @@ void main()
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
-    #define PRE_SCALER_GLOBAL_INIT 10
-    uint8_t preScalerGlobal = PRE_SCALER_GLOBAL_INIT;
-    #define PRE_SCALER_INIT 50
-    uint8_t preScaler = PRE_SCALER_INIT;
+    #define PRE_SCALER_ONE_INIT 10    // 1000 Hz -> 100 Hz
+    uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
+    #define PRE_SCALER_TWO_INIT 10    // 100 Hz -> 10 Hz
+    uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
+    #define PRE_SCALER_THREE_INIT 5   // 10 Hz -> 2 Hz
+    uint8_t preScalerThree = PRE_SCALER_THREE_INIT;
+
+    int8_t rotationMin = SCHAR_MAX;
+    int8_t rotationMax = SCHAR_MIN;
     while (true)
     {
+        // Update with complete F_SYS_CLK.
         rotaryEncoderUpdate(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
-        --preScalerGlobal;
-        if (0 == preScalerGlobal)
+        --preScalerOne;
+        if (0 == preScalerOne)
         {
-            preScalerGlobal = PRE_SCALER_GLOBAL_INIT;
+            preScalerOne = PRE_SCALER_ONE_INIT;
 
+            // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT.
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
-            // if (buttonReleasedAfterShort(&pushButton))
-            // {
-            //     PWR_SWITCH_PIN = 1;
-            // }
-            // else if (buttonReleasedAfterLong(&pushButton))
-            // {
-            //     PWR_SWITCH_PIN = 0;
-            // }
-
-            --preScaler;
-
-            if (0 == preScaler)
+            --preScalerTwo;
+            if (0 == preScalerTwo)
             {
-                preScaler = PRE_SCALER_INIT;
+                preScalerTwo = PRE_SCALER_TWO_INIT;
 
-                PWR_SWITCH_PIN ^= 1;
+
+                // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT.
+
+
+                // if (buttonReleasedAfterShort(&pushButton))
+                // {
+                //     PWR_SWITCH_PIN = 1;
+                // }
+                // else if (buttonReleasedAfterLong(&pushButton))
+                // {
+                //     PWR_SWITCH_PIN = 0;
+                // }
+
+                --preScalerThree;
+
+                if (0 == preScalerThree)
+                {
+                    preScalerThree = PRE_SCALER_THREE_INIT;
+
+                  // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT / PRE_SCALER_THREE_INIT.
+
+                    PWR_SWITCH_PIN ^= 1;
+                }
 
                 // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
                 // if (0 < rotation)
@@ -574,8 +593,29 @@ void main()
                 //     // intentionally empty
                 // }
 
-                int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-                tm1637RenderNumberSigned(rotation);
+                // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+                int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+                if (rotationMax < rotation)
+                {
+                    rotationMax = rotation;
+                }
+                if (rotationMin > rotation)
+                {
+                    rotationMin = rotation;
+                }
+
+                if (0 < rotation)
+                {
+                    tm1637RenderNumberSigned(rotationMax);
+                }
+                else if (0 > rotation)
+                {
+                    tm1637RenderNumberSigned(rotationMin);
+                }
+                else
+                {
+                    // intentionally empty
+                }
 
                 // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
                 // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
@@ -585,27 +625,30 @@ void main()
 
                 tm1637Show();
 
+                // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
+                // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
+
+                // if (rotaryEncoderA != rotaryEncoderAPrevious)
+                // {
+                //     rotaryEncoderAPrevious = rotaryEncoderA;
+
+                //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
+
+                //     // Observation: clockwise: on, counter-clockwise: off
+                // }
+                // else
+                // {
+                //     // intentionally empty
+                // }
+
+                // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
+                // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
+                // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
             }
-
-            // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
-            // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
-
-            // if (rotaryEncoderA != rotaryEncoderAPrevious)
-            // {
-            //     rotaryEncoderAPrevious = rotaryEncoderA;
-
-            //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
-
-            //     // Observation: clockwise: on, counter-clockwise: off
-            // }
-            // else
-            // {
-            //     // intentionally empty
-            // }
-
-            // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
-            // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
-            // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
+            else
+            {
+                // intentionally empty
+            }
         }
         else
         {
