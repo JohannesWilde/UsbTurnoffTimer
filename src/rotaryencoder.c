@@ -86,7 +86,7 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
     }
 }
 
-int8_t getAndResetAccumulatedRotation(RotaryEncoder * rotaryEncoder)
+int8_t rotaryEncoderGetAndResetAccumulatedRotation(RotaryEncoder * rotaryEncoder)
 {
     int8_t const copy = rotaryEncoder->rotation;
     rotaryEncoder->rotation = 0;

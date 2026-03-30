@@ -512,7 +512,7 @@ void main()
         {
             preScaler = PRE_SCALER_INIT;
 
-            int8_t const rotation = getAndResetAccumulatedRotation(&rotaryEncoder);
+            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
             if (0 < rotation)
             {
                 PWR_SWITCH_PIN = 1;
