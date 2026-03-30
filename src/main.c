@@ -281,9 +281,9 @@ typedef enum
     tm1637Character_4 = 4,
     tm1637Character_5 = 5,
     tm1637Character_6 = 6,
-    tm1637Character_7= 7,
-    tm1637Character_8= 8,
-    tm1637Character_9= 9,
+    tm1637Character_7 = 7,
+    tm1637Character_8 = 8,
+    tm1637Character_9 = 9,
     tm1637Character_a = 10,
     tm1637Character_b = 11,
     tm1637Character_c = 12,
@@ -293,6 +293,8 @@ typedef enum
     tm1637Character_minus = 16,
     tm1637Character_none = 17,
     tm1637Character_l = 18,
+    tm1637Character_y = 19,
+    tm1637Character_o = tm1637Character_0,
 } Tm1637Character;
 
 
@@ -336,6 +338,7 @@ static uint8_t const tm1637Characters[] =
     0b01000000,    // -
     0b00000000,    //
     0b00111000,    // L
+    0b01110010,    // Y
 };
 
 void tm1637RenderTime(Duration const * const duration)
