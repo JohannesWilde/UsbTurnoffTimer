@@ -57,28 +57,31 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
     {
         rotaryEncoder->stateBPrevious = stateB;
 
-        if (stateA == stateB)
-        {
-            if (SCHAR_MAX > rotaryEncoder->rotation)
-            {
-                rotaryEncoder->rotation += 1;
-            }
-            else
-            {
-                // intentionally empty
-            }
-        }
-        else // (stateA != stateB)
-        {
-            if (SCHAR_MIN < rotaryEncoder->rotation)
-            {
-                rotaryEncoder->rotation -= 1;
-            }
-            else
-            {
-                // intentionally empty
-            }
-        }
+        // Only count for toggling of A - because of the HW layout this would otherwise mean
+        // an increase of rotation by 4 with each notch.
+
+    //     if (stateA == stateB)
+    //     {
+    //         if (SCHAR_MAX > rotaryEncoder->rotation)
+    //         {
+    //             rotaryEncoder->rotation += 1;
+    //         }
+    //         else
+    //         {
+    //             // intentionally empty
+    //         }
+    //     }
+    //     else // (stateA != stateB)
+    //     {
+    //         if (SCHAR_MIN < rotaryEncoder->rotation)
+    //         {
+    //             rotaryEncoder->rotation -= 1;
+    //         }
+    //         else
+    //         {
+    //             // intentionally empty
+    //         }
+    //     }
     }
     else
     {
