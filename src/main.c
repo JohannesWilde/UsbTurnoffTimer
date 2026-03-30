@@ -572,7 +572,7 @@ void main()
                 // intentionally empty
             }
 
-            if (buttonReleasedAfterShort(&pushButton))
+            if (buttonReleasedAfterLong(&pushButton))
             {
                 rotationMax = SCHAR_MIN;
                 rotationMin = SCHAR_MAX;
