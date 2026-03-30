@@ -434,6 +434,31 @@ inline void tm1637Show()
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
 }
 
+// Prescaler for different time domains.
+
+// Update prescaler value. Return true on underrun [i.e. processing should happen].
+// The priodicity of the prescaler is (initialValue + 1).
+inline bool updatePrescaler(uint8_t * value, uint8_t const initialValue)
+{
+    bool const valueUnderrun = (0 == (*value));
+    if (valueUnderrun)
+    {
+        *value = initialValue;
+    }
+    else
+    {
+        --(*value);
+    }
+    return valueUnderrun;
+}
+
+#define PRE_SCALER_ONE_INIT (10 - 1)    // 1000 Hz -> 100 Hz
+#define PRE_SCALER_TWO_INIT (10 - 1)    // 100 Hz -> 10 Hz
+#define PRE_SCALER_THREE_INIT (5 - 1)   // 10 Hz -> 2 Hz
+
+static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
+static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
+static uint8_t preScalerThree = PRE_SCALER_THREE_INIT;
 
 // HW inputs
 static ButtonTimed pushButton;
@@ -528,13 +553,6 @@ void main()
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
-    #define PRE_SCALER_ONE_INIT 10    // 1000 Hz -> 100 Hz
-    uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
-    #define PRE_SCALER_TWO_INIT 10    // 100 Hz -> 10 Hz
-    uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
-    #define PRE_SCALER_THREE_INIT 5   // 10 Hz -> 2 Hz
-    uint8_t preScalerThree = PRE_SCALER_THREE_INIT;
-
     int8_t rotationMin = SCHAR_MAX;
     int8_t rotationMax = SCHAR_MIN;
     while (true)
@@ -542,20 +560,13 @@ void main()
         // Update with complete F_SYS_CLK.
         rotaryEncoderUpdate(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
-        --preScalerOne;
-        if (0 == preScalerOne)
+        if (updatePrescaler(&preScalerOne, PRE_SCALER_ONE_INIT))
         {
-            preScalerOne = PRE_SCALER_ONE_INIT;
-
             // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT.
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
-            --preScalerTwo;
-            if (0 == preScalerTwo)
+            if (updatePrescaler(&preScalerTwo, PRE_SCALER_TWO_INIT))
             {
-                preScalerTwo = PRE_SCALER_TWO_INIT;
-
-
                 // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT.
 
 
@@ -568,12 +579,8 @@ void main()
                 //     PWR_SWITCH_PIN = 0;
                 // }
 
-                --preScalerThree;
-
-                if (0 == preScalerThree)
+                if (updatePrescaler(&preScalerThree, PRE_SCALER_THREE_INIT))
                 {
-                    preScalerThree = PRE_SCALER_THREE_INIT;
-
                   // Update with F_SYS_CLK / PRE_SCALER_ONE_INIT / PRE_SCALER_TWO_INIT / PRE_SCALER_THREE_INIT.
 
                     PWR_SWITCH_PIN ^= 1;
