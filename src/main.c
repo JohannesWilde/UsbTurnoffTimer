@@ -140,19 +140,19 @@ uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation)
     {
         // minutes = 0;
     }
-    else if (2 > rotation)
+    else if (3 > rotation)
     {
         minutes = 1;
     }
-    else if (4 > rotation)
+    else if (5 > rotation)
     {
         minutes = 5;
     }
-    else if (6 > rotation)
+    else if (7 > rotation)
     {
         minutes = 15;
     }
-    else if (8 > rotation)
+    else if (9 > rotation)
     {
         minutes = 30;
     }
@@ -173,7 +173,7 @@ uint16_t rotaryEncoderRotationAppliedToMinutes(uint16_t const minutes, int8_t co
 {
     #define MAX_24HOURS_MINUTES ((uint16_t)(24) * 60)
 
-    uint8_t const deltaMinutes = rotaryEncoderRotationToMinutesConversion(absoluteValue_int8(rotation));
+    uint16_t const deltaMinutes = rotaryEncoderRotationToMinutesConversion(absoluteValue_int8(rotation));
 
     uint16_t adaptedMinutes = minutes;
 
@@ -445,7 +445,7 @@ static uint8_t const tm1637Characters[] =
     0b01110010,    // Y
 };
 
-void tm1637RenderTime(Duration const * const duration)
+void tm1637RenderDuration(Duration const * const duration)
 {
     if ((1000ull * 60ull * 60ull * 100ull) <= *duration)
     {
@@ -466,6 +466,32 @@ void tm1637RenderTime(Duration const * const duration)
         Duration const divisor = 60000ull;
         // milliseconds -> minutes
         durationCopy /= divisor;
+        uint8_t const minutes = durationCopy % 60;
+        // minutes -> hours
+        durationCopy /= 60;
+        uint8_t const hours = durationCopy;
+
+        tm1637DisplayData[0] = tm1637Characters[hours / 10];
+        tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[hours % 10];
+        tm1637DisplayData[2] = tm1637Characters[minutes / 10];
+        tm1637DisplayData[3] = tm1637Characters[minutes % 10];
+    }
+}
+
+void tm1637RenderDurationMinutes(uint16_t const duration)
+{
+    if ((((uint16_t)60) * 100) <= duration)
+    {
+        // memset(tm1637DisplayData, tm1637Characters[tm1637Character_minus], 4);
+        tm1637DisplayData[0] = tm1637Characters[tm1637Character_minus];
+        tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[tm1637Character_minus];
+        tm1637DisplayData[2] = tm1637Characters[tm1637Character_minus];
+        tm1637DisplayData[3] = tm1637Characters[tm1637Character_minus];
+    }
+    else
+    {
+        uint16_t durationCopy = duration;
+
         uint8_t const minutes = durationCopy % 60;
         // minutes -> hours
         durationCopy /= 60;
@@ -524,7 +550,7 @@ void tm1637RenderNumberSigned(int8_t const number)
     }
 }
 
-void tm1637RenderNumberUnigned(uint8_t const number)
+void tm1637RenderNumberUnsigned(uint8_t const number)
 {
     tm1637DisplayData[0] = tm1637Characters[tm1637Character_none];
     tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[(number / 100) /*% 10*/];
@@ -642,7 +668,7 @@ void main()
 
 
     tm1637DisplayData[0] = (1 * 0x7f);
-    tm1637DisplayData[1] = (1 * 0x7f) | (0 * 0x80); // MSb is colon
+    tm1637DisplayData[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
     tm1637DisplayData[2] = (1 * 0x7f);
     tm1637DisplayData[3] = (1 * 0x7f);
 
@@ -652,8 +678,7 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-    int8_t rotationMin = SCHAR_MAX;
-    int8_t rotationMax = SCHAR_MIN;
+    uint16_t selectedDurationMinutes = 0;
 
     while (true)
     {
@@ -684,35 +709,14 @@ void main()
 
             if (buttonReleasedAfterLong(&pushButton))
             {
-                rotationMax = SCHAR_MIN;
-                rotationMin = SCHAR_MAX;
-
-                tm1637RenderNumberSigned(0);
+                selectedDurationMinutes = 0;
             }
 
             // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
             int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
 
-            if (rotationMax < rotation)
-            {
-                rotationMax = rotation;
-            }
-            if (rotationMin > rotation)
-            {
-                rotationMin = rotation;
-            }
-            if (0 < rotation)
-            {
-                tm1637RenderNumberSigned(rotationMax);
-            }
-            else if (0 > rotation)
-            {
-                tm1637RenderNumberSigned(rotationMin);
-            }
-            else
-            {
-                // intentionally empty
-            }
+            selectedDurationMinutes = rotaryEncoderRotationAppliedToMinutes(selectedDurationMinutes, rotation);
+            tm1637RenderDurationMinutes(selectedDurationMinutes);
 
             // Duration const duration = millis();
             // tm1637RenderTime(&duration);
