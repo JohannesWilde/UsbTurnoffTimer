@@ -12,7 +12,7 @@
 #define F_IRC 24000000ull  // Hz
 #define CLOCK_DIVISOR 12
 #define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
-#define F_SYS_TICK 100ull  // Hz
+#define F_SYS_TICK 1000ull  // Hz
 
 #define MAKE_PIN_NAME_(port, pin) P##port##_##pin
 #define MAKE_PIN_NAME(port, pin) MAKE_PIN_NAME_(port, pin)
@@ -89,8 +89,8 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
 {
-    // 100 Hz update rate
-    COMPILE_TIME_ASSERT(100 == F_SYS_TICK);
+    // 100 Hz update rate for button - but 1000 Hz for rotaryEncoder
+    COMPILE_TIME_ASSERT(1000 == F_SYS_TICK);
 
     ButtonStateDuration duration = buttonDurationTooShort;
     if (50 < rawDuration) // 500 ms
@@ -504,8 +504,8 @@ void main()
     PWR_SWITCH_PIN = 1; // PWR_SWITCH
 
     // TMOD = (0 * T0_GATE) | (0 * T0_CT) | (0 * T0_M1) | (0 * T0_M0); // un-gated [0], timer [0], 16-bit auto-reload [00]
-    // AUXR &= ~(1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
-    #define TIMER0_COUNT (65536ull - (F_CPU / 12 / F_SYS_TICK))
+    AUXR |= (1 << 7); // AUXR.T0x12[7] = 0 -> 0: The clock source of T0 is SYSclk/12, 1: The clock source of T0 is SYSclk/1.
+    #define TIMER0_COUNT (65536ull - (F_CPU /*/ 12*/ / F_SYS_TICK))
     // TR0 = 0; // Disable Timer0 so that the newly configured TH0 and TL0 will be used from the first cycle.
     TL0 = TIMER0_COUNT % 256;
     TH0 = TIMER0_COUNT / 256;
@@ -528,76 +528,89 @@ void main()
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
     // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
+    #define PRE_SCALER_GLOBAL_INIT 10
+    uint8_t preScalerGlobal = PRE_SCALER_GLOBAL_INIT;
     #define PRE_SCALER_INIT 50
     uint8_t preScaler = PRE_SCALER_INIT;
     while (true)
     {
         rotaryEncoderUpdate(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-        buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
-        // if (buttonReleasedAfterShort(&pushButton))
-        // {
-        //     PWR_SWITCH_PIN = 1;
-        // }
-        // else if (buttonReleasedAfterLong(&pushButton))
-        // {
-        //     PWR_SWITCH_PIN = 0;
-        // }
-
-        --preScaler;
-
-        if (0 == preScaler)
+        --preScalerGlobal;
+        if (0 == preScalerGlobal)
         {
-            preScaler = PRE_SCALER_INIT;
+            preScalerGlobal = PRE_SCALER_GLOBAL_INIT;
 
-            PWR_SWITCH_PIN ^= 1;
+            buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
-            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
-            // if (0 < rotation)
+            // if (buttonReleasedAfterShort(&pushButton))
+            // {
+            //     PWR_SWITCH_PIN = 1;
+            // }
+            // else if (buttonReleasedAfterLong(&pushButton))
             // {
             //     PWR_SWITCH_PIN = 0;
             // }
-            // else if (0 > rotation)
+
+            --preScaler;
+
+            if (0 == preScaler)
+            {
+                preScaler = PRE_SCALER_INIT;
+
+                PWR_SWITCH_PIN ^= 1;
+
+                // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+                // if (0 < rotation)
+                // {
+                //     PWR_SWITCH_PIN = 0;
+                // }
+                // else if (0 > rotation)
+                // {
+                //     PWR_SWITCH_PIN = 1;
+                // }
+                // else
+                // {
+                //     // intentionally empty
+                // }
+
+                int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+                tm1637RenderNumberSigned(rotation);
+
+                // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
+                // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
+
+                // Duration const duration = millis();
+                // tm1637RenderTime(&duration);
+
+                tm1637Show();
+
+            }
+
+            // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
+            // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
+
+            // if (rotaryEncoderA != rotaryEncoderAPrevious)
             // {
-            //     PWR_SWITCH_PIN = 1;
+            //     rotaryEncoderAPrevious = rotaryEncoderA;
+
+            //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
+
+            //     // Observation: clockwise: on, counter-clockwise: off
             // }
             // else
             // {
             //     // intentionally empty
             // }
 
-            int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-            tm1637RenderNumberSigned(rotation);
-
-            // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
-            // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-
-            // Duration const duration = millis();
-            // tm1637RenderTime(&duration);
-
-            tm1637Show();
-
+            // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
+            // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
+            // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
         }
-
-        // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
-        // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
-
-        // if (rotaryEncoderA != rotaryEncoderAPrevious)
-        // {
-        //     rotaryEncoderAPrevious = rotaryEncoderA;
-
-        //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
-
-        //     // Observation: clockwise: on, counter-clockwise: off
-        // }
-        // else
-        // {
-        //     // intentionally empty
-        // }
-
-        // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
-        // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
-        // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
+        else
+        {
+            // intentionally empty
+        }
 
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
     }
