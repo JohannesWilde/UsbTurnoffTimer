@@ -3,6 +3,7 @@
 #include "static_assert.h"
 #include "stc8g.h"
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -391,6 +392,43 @@ bool tm1637GetRenderColon()
     return /*0 != */(tm1637DisplayData[1] & 0x80);
 }
 
+void tm1637RenderNumberSigned(int8_t const number)
+{
+    int8_t numberCopy = number;
+    if (SCHAR_MIN == number)
+    {
+        // I can't represent +128 in int8_t - so handle it specially
+        tm1637DisplayData[0] = tm1637Characters[tm1637Character_minus];
+        tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[tm1637Character_1];
+        tm1637DisplayData[2] = tm1637Characters[tm1637Character_2];
+        tm1637DisplayData[3] = tm1637Characters[tm1637Character_8];
+    }
+    else
+    {
+      if (0 > number)
+      {
+          tm1637DisplayData[0] = tm1637Characters[tm1637Character_minus];
+          numberCopy *= -1;
+      }
+      else
+      {
+          tm1637DisplayData[0] = tm1637Characters[tm1637Character_none];
+      }
+
+      tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[(number / 100) /*% 10*/];
+      tm1637DisplayData[2] = tm1637Characters[(number / 10) % 10];
+      tm1637DisplayData[3] = tm1637Characters[number % 10];
+    }
+}
+
+void tm1637RenderNumberUnigned(uint8_t const number)
+{
+    tm1637DisplayData[0] = tm1637Characters[tm1637Character_none];
+    tm1637DisplayData[1] = (tm1637DisplayData[1] & 0x80) | tm1637Characters[(number / 100) /*% 10*/];
+    tm1637DisplayData[2] = tm1637Characters[(number / 10) % 10];
+    tm1637DisplayData[3] = tm1637Characters[number % 10];
+}
+
 inline void tm1637Show()
 {
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
@@ -478,7 +516,7 @@ void main()
 
 
     tm1637DisplayData[0] = (1 * 0x7f);
-    tm1637DisplayData[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
+    tm1637DisplayData[1] = (1 * 0x7f) | (0 * 0x80); // MSb is colon
     tm1637DisplayData[2] = (1 * 0x7f);
     tm1637DisplayData[3] = (1 * 0x7f);
 
@@ -512,25 +550,30 @@ void main()
         {
             preScaler = PRE_SCALER_INIT;
 
-            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
-            if (0 < rotation)
-            {
-                PWR_SWITCH_PIN = 1;
-            }
-            else if (0 > rotation)
-            {
-                PWR_SWITCH_PIN = 0;
-            }
-            else
-            {
-                // intentionally empty
-            }
+            PWR_SWITCH_PIN ^= 1;
 
-            tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
-            // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
+            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+            // if (0 < rotation)
+            // {
+            //     PWR_SWITCH_PIN = 0;
+            // }
+            // else if (0 > rotation)
+            // {
+            //     PWR_SWITCH_PIN = 1;
+            // }
+            // else
+            // {
+            //     // intentionally empty
+            // }
 
-            Duration const duration = millis();
-            tm1637RenderTime(&duration);
+            int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+            tm1637RenderNumberSigned(rotation);
+
+            // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
+            // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
+
+            // Duration const duration = millis();
+            // tm1637RenderTime(&duration);
 
             tm1637Show();
 
