@@ -89,7 +89,7 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
 {
-    // 100 Hz update rate for button - but 1000 Hz for rotaryEncoder
+    // 20 Hz update rate for button - but 1000 Hz for rotaryEncoder
     COMPILE_TIME_ASSERT(1000 == F_SYS_TICK);
 
     ButtonStateDuration duration = buttonDurationShort;
@@ -448,13 +448,11 @@ inline bool updatePrescaler(uint8_t * value, uint8_t const initialValue)
     return valueUnderrun;
 }
 
-#define PRE_SCALER_ONE_INIT (10 - 1)    // 1000 Hz -> 100 Hz
-#define PRE_SCALER_TWO_INIT (10 - 1)    // 100 Hz -> 10 Hz
-#define PRE_SCALER_THREE_INIT (5 - 1)   // 10 Hz -> 2 Hz
+#define PRE_SCALER_ONE_INIT (50 - 1)    // 1000 Hz -> 20 Hz
+#define PRE_SCALER_TWO_INIT (10 - 1)    // 20 Hz -> 2 Hz
 
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
-static uint8_t preScalerThree = PRE_SCALER_THREE_INIT;
 
 // HW inputs
 static ButtonTimed pushButton;
@@ -547,10 +545,9 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-
-    // uint8_t rotaryEncoderAPrevious = ROTARY_ENCODER_A_PIN;
     int8_t rotationMin = SCHAR_MAX;
     int8_t rotationMax = SCHAR_MIN;
+
     while (true)
     {
         // Update with complete F_SYS_CLK.
@@ -565,93 +562,46 @@ void main()
             {
                 // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1).
 
-
-                // if (buttonReleasedAfterShort(&pushButton))
-                // {
-                //     PWR_SWITCH_PIN = 1;
-                // }
-                // else if (buttonReleasedAfterLong(&pushButton))
-                // {
-                //     PWR_SWITCH_PIN = 0;
-                // }
-
-                if (updatePrescaler(&preScalerThree, PRE_SCALER_THREE_INIT))
-                {
-                  // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1) / (PRE_SCALER_THREE_INIT + 1).
-
-                    PWR_SWITCH_PIN ^= 1;
-                }
-
-                // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
-                // if (0 < rotation)
-                // {
-                //     PWR_SWITCH_PIN = 0;
-                // }
-                // else if (0 > rotation)
-                // {
-                //     PWR_SWITCH_PIN = 1;
-                // }
-                // else
-                // {
-                //     // intentionally empty
-                // }
-
-                // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-                int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
-                if (rotationMax < rotation)
-                {
-                    rotationMax = rotation;
-                }
-                if (rotationMin > rotation)
-                {
-                    rotationMin = rotation;
-                }
-
-                if (0 < rotation)
-                {
-                    tm1637RenderNumberSigned(rotationMax);
-                }
-                else if (0 > rotation)
-                {
-                    tm1637RenderNumberSigned(rotationMin);
-                }
-                else
-                {
-                    // intentionally empty
-                }
+                PWR_SWITCH_PIN ^= 1;
 
                 // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
                 // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-
-                // Duration const duration = millis();
-                // tm1637RenderTime(&duration);
-
-                tm1637Show();
-
-                // uint8_t const rotaryEncoderA = ROTARY_ENCODER_A_PIN;
-                // uint8_t const rotaryEncoderB = ROTARY_ENCODER_B_PIN;
-
-                // if (rotaryEncoderA != rotaryEncoderAPrevious)
-                // {
-                //     rotaryEncoderAPrevious = rotaryEncoderA;
-
-                //     PWR_SWITCH_PIN = rotaryEncoderB ^ rotaryEncoderA;
-
-                //     // Observation: clockwise: on, counter-clockwise: off
-                // }
-                // else
-                // {
-                //     // intentionally empty
-                // }
-
-                // PWR_SWITCH_PIN = PUSH_BUTTON_PIN;
-                // PWR_SWITCH_PIN = ROTARY_ENCODER_A_PIN;
-                // PWR_SWITCH_PIN = ROTARY_ENCODER_B_PIN;
             }
             else
             {
                 // intentionally empty
             }
+
+
+
+            // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+
+            if (rotationMax < rotation)
+            {
+                rotationMax = rotation;
+            }
+            if (rotationMin > rotation)
+            {
+                rotationMin = rotation;
+            }
+            if (0 < rotation)
+            {
+                tm1637RenderNumberSigned(rotationMax);
+            }
+            else if (0 > rotation)
+            {
+                tm1637RenderNumberSigned(rotationMin);
+            }
+            else
+            {
+                // intentionally empty
+            }
+
+            // Duration const duration = millis();
+            // tm1637RenderTime(&duration);
+
+            tm1637Show();
         }
         else
         {
