@@ -64,6 +64,7 @@ inline void interrupts()
     EA = 1;
 }
 
+
 typedef uint32_t Duration;
 // Keep this static variable uninitialized for smaller code size.
 // It will be filled with 0s before the program is executed anyway.
@@ -87,6 +88,9 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
     milliseconds_ += 1000 / F_SYS_TICK;
 }
 
+
+// Button duration conversion
+
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
 {
     // 20 Hz update rate for button - but 1000 Hz for rotaryEncoder
@@ -103,6 +107,106 @@ ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
     }
 
     return duration;
+}
+
+// Rotation conversion
+
+int8_t absoluteValue_int8(int8_t const value)
+{
+    int8_t absolute = value;
+    if (0 > value)
+    {
+        if (SCHAR_MIN == value)
+        {
+            absolute = SCHAR_MAX;
+        }
+        else
+        {
+            absolute = -1 * value;
+        }
+    }
+    else
+    {
+        // absolute = value;
+    }
+    return absolute;
+}
+
+uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation)
+{
+    uint8_t minutes = 0;
+
+    if (0 == rotation)
+    {
+        // minutes = 0;
+    }
+    else if (2 > rotation)
+    {
+        minutes = 1;
+    }
+    else if (4 > rotation)
+    {
+        minutes = 5;
+    }
+    else if (6 > rotation)
+    {
+        minutes = 15;
+    }
+    else if (8 > rotation)
+    {
+        minutes = 30;
+    }
+    else if (11 > rotation)
+    {
+        minutes = 60;
+    }
+    else
+    {
+        minutes = 240;
+    }
+
+    return minutes;
+}
+
+// Limited to [0 hours, 24 hours].
+uint16_t rotaryEncoderRotationAppliedToMinutes(uint16_t const minutes, int8_t const rotation)
+{
+    #define MAX_24HOURS_MINUTES ((uint16_t)(24) * 60)
+
+    uint8_t const deltaMinutes = rotaryEncoderRotationToMinutesConversion(absoluteValue_int8(rotation));
+
+    uint16_t adaptedMinutes = minutes;
+
+    if (0 == rotation)
+    {
+        // adaptedMinutes = minutes;
+    }
+    else if (0 > rotation)
+    {
+        // subtract
+        if (minutes > deltaMinutes)
+        {
+            adaptedMinutes = minutes - deltaMinutes;
+        }
+        else
+        {
+            adaptedMinutes = 0;
+        }
+    }
+    else // if (0 < rotation)
+    {
+        // add
+        if ((MAX_24HOURS_MINUTES - minutes) > deltaMinutes)
+        {
+            adaptedMinutes = minutes + deltaMinutes;
+        }
+        else
+        {
+            adaptedMinutes = MAX_24HOURS_MINUTES;
+        }
+    }
+
+    return adaptedMinutes;
 }
 
 
@@ -575,6 +679,9 @@ void main()
                 // intentionally empty
             }
 
+
+
+
             if (buttonReleasedAfterLong(&pushButton))
             {
                 rotationMax = SCHAR_MIN;
@@ -616,6 +723,8 @@ void main()
         {
             // intentionally empty
         }
+
+
 
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
     }
