@@ -13,7 +13,6 @@ ButtonState;
 
 typedef enum
 {
-    buttonDurationTooShort,
     buttonDurationShort,
     buttonDurationLong,
 }

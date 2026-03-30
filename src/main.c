@@ -92,18 +92,14 @@ ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
     // 100 Hz update rate for button - but 1000 Hz for rotaryEncoder
     COMPILE_TIME_ASSERT(1000 == F_SYS_TICK);
 
-    ButtonStateDuration duration = buttonDurationTooShort;
-    if (50 < rawDuration) // 500 ms
+    ButtonStateDuration duration = buttonDurationShort;
+    if (10 < rawDuration) // 500 ms
     {
         duration = buttonDurationLong;
     }
-    else if (5 < rawDuration) // 50 ms -> debounce
-    {
-        duration = buttonDurationShort;
-    }
     else
     {
-        // duration = buttonDurationTooShort;
+        // duration = buttonDurationShort;
     }
 
     return duration;
