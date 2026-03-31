@@ -9,6 +9,8 @@ add_executable(${PROJECT_NAME}
     auxiliaries.h
     i2c_bitbang.c
     i2c_bitbang.h
+    tm1637driver.c
+    tm1637driver.h
 )
 
 target_link_libraries(${PROJECT_NAME}
