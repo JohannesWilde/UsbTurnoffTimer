@@ -1,6 +1,7 @@
 
+add_subdirectory(implementations)
+
 add_executable(${PROJECT_NAME}
-    implementations/buttontimed.c
     buttontimed.h
     main.c
     implementations/rotaryencoder.c
@@ -8,9 +9,9 @@ add_executable(${PROJECT_NAME}
     stc8g.h
 )
 
-# target_link_libraries(${PROJECT_NAME}
-#     PRIVATE
-# )
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE ButtonTimed
+)
 
 ihx_to_hex(${PROJECT_NAME})
 
