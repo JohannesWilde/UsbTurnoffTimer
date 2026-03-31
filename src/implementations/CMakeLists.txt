@@ -81,6 +81,9 @@ add_library(Specifics_buttonRawDurationConversion_
 add_library(Specifics_millis
     specifics_millis.c
 )
+add_library(Specifics_minutesOrSecondsToDuration
+    specifics_minutesOrSecondsToDuration.c
+)
 add_library(Specifics_rotaryEncoderRotationAppliedToMinutes
     specifics_rotaryEncoderRotationAppliedToMinutes.c
 )
@@ -96,6 +99,7 @@ add_library(Specifics INTERFACE)
 target_link_libraries(Specifics
     INTERFACE Specifics_buttonRawDurationConversion_
     INTERFACE Specifics_millis
+    INTERFACE Specifics_minutesOrSecondsToDuration
     INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutes
     INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutesOrSeconds
     INTERFACE Specifics_rotaryEncoderRotationToMinutesConversion

@@ -29,4 +29,6 @@ uint16_t rotaryEncoderRotationAppliedSexagesimal(uint16_t const value, int8_t co
 
 void rotaryEncoderRotationAppliedToMinutesOrSeconds(MinutesOrSeconds * value, int8_t rotation);
 
+Duration minutesOrSecondsToDuration(MinutesOrSeconds const * value);
+
 #endif // SPECIFICS_H
