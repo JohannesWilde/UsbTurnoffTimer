@@ -38,7 +38,12 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 // 20 Hz -> 2 Hz
 #define PRE_SCALER_TWO_INIT (10 - 1)
 
+// 20 Hz -> 12.5 s
+#define DISPLAY_OFF_TIMEOUT (256 - 1)
+
+
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
+static uint8_t displayTurnOffCounter = DISPLAY_OFF_TIMEOUT;
 
 // HW inputs
 static ButtonTimed pushButton;
@@ -511,18 +516,10 @@ void main()
 
     tm1637DataCommand(/*fixedAddress*/ false, /*readKeyAndDontWriteDisplay*/ false);
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
-    tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x01);
+    tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x03);
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-
-    statemachineInit(&statemachine, &statemachineHandlerConfigureDelay);
-
-
-    // MinutesOrSeconds selectedDuration = {
-    //     .minutesNotSeconds = false,
-    //     .value = 0
-    // };
 
     // statemachineData.cycleCounter = 0;
     // statemachineData.delayDurationMinutes = 0;
@@ -530,6 +527,8 @@ void main()
     statemachineData.offDuration.value = 5;
     // statemachineData.nextTimeToAct = 0ull;
     statemachineData.outputOn = PWR_SWITCH_PIN;
+
+    statemachineInit(&statemachine, &statemachineHandlerConfigureDelay);
 
     while (true)
     {
@@ -540,6 +539,38 @@ void main()
         {
             // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1).
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
+
+            // Look for any user interaction - if none, disable the display after a timeout.
+            if (buttonIsDown(&pushButton) ||
+                    (0 != rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder)))
+            {
+                if (0 == displayTurnOffCounter)
+                {
+                    tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x03);
+                }
+                else
+                {
+                    // intentionally empty
+                }
+
+                displayTurnOffCounter = DISPLAY_OFF_TIMEOUT;
+            }
+            else
+            {
+                if (0 == displayTurnOffCounter)
+                {
+                    // intentionally empty
+                }
+                else if (1 != displayTurnOffCounter)
+                {
+                    --displayTurnOffCounter;
+                }
+                else
+                {
+                    --displayTurnOffCounter;
+                    tm1637DisplayCommand(/*on*/ false, /*brightness*/ 0x03);
+                }
+            }
 
             statemachineProcess(&statemachine, &statemachineData);
         }
