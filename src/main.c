@@ -118,11 +118,10 @@ void main()
 
     interrupts(); // enable interrupts
 
-
-    tm1637DisplayData[0] = (1 * 0x7f);
-    tm1637DisplayData[1] = (1 * 0x7f) | (1 * 0x80); // MSb is colon
-    tm1637DisplayData[2] = (1 * 0x7f);
-    tm1637DisplayData[3] = (1 * 0x7f);
+    tm1637DisplayData[0] = tm1637Characters[tm1637Character_none]; // (1 * 0x7f);
+    tm1637DisplayData[1] = tm1637Characters[tm1637Character_none]; // (1 * 0x7f) | (1 * 0x80); // MSb is colon
+    tm1637DisplayData[2] = tm1637Characters[tm1637Character_none]; // (1 * 0x7f);
+    tm1637DisplayData[3] = tm1637Characters[tm1637Character_none]; // (1 * 0x7f);
 
     tm1637DataCommand(/*fixedAddress*/ false, /*readKeyAndDontWriteDisplay*/ false);
     tm1637AddressCommand(/*address*/ 0, tm1637DisplayData, /*count*/ 4);
@@ -130,7 +129,8 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-    uint16_t selectedDurationMinutes = 0;
+    // uint16_t selectedDurationMinutes = 0;
+    uint8_t index = 0;
 
     while (true)
     {
@@ -150,6 +150,24 @@ void main()
 
                 // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
                 // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
+
+
+                tm1637DisplayData[0] = tm1637DisplayData[1];
+                tm1637DisplayData[1] = tm1637DisplayData[2];
+                tm1637DisplayData[2] = tm1637DisplayData[3];
+
+                tm1637DisplayData[3] = tm1637Characters[index];
+
+                if (tm1637Character_m == index)
+                {
+                    index = 0;
+                }
+                else
+                {
+                    ++index;
+                }
+
+                tm1637Show();
             }
             else
             {
@@ -159,21 +177,21 @@ void main()
 
 
 
-            if (buttonReleasedAfterLong(&pushButton))
-            {
-                selectedDurationMinutes = 0;
-            }
+            // if (buttonReleasedAfterLong(&pushButton))
+            // {
+            //     selectedDurationMinutes = 0;
+            // }
 
-            // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+            // // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
 
-            selectedDurationMinutes = rotaryEncoderRotationAppliedToMinutes(selectedDurationMinutes, rotation);
-            tm1637RenderDurationMinutes(selectedDurationMinutes);
+            // selectedDurationMinutes = rotaryEncoderRotationAppliedToMinutes(selectedDurationMinutes, rotation);
+            // tm1637RenderDurationMinutes(selectedDurationMinutes);
 
-            // Duration const duration = millis();
-            // tm1637RenderTime(&duration);
+            // // Duration const duration = millis();
+            // // tm1637RenderTime(&duration);
 
-            tm1637Show();
+            // tm1637Show();
         }
         else
         {
