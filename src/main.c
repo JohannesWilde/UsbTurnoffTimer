@@ -43,6 +43,12 @@ static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
 static ButtonTimed pushButton;
 static RotaryEncoder rotaryEncoder;
 
+typedef struct
+{
+    uint16_t minutesNotSeconds : 1;
+    uint16_t value : 15;
+} MinutesOrSeconds;
+
 
 void main()
 {
@@ -129,7 +135,10 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-    uint16_t selectedDurationMinutes = 0;
+    MinutesOrSeconds selectedDuration = {
+        .minutesNotSeconds = false,
+        .value = 0
+    };
 
     while (true)
     {
@@ -160,14 +169,52 @@ void main()
 
             if (buttonReleasedAfterLong(&pushButton))
             {
-                selectedDurationMinutes = 0;
+                selectedDuration.minutesNotSeconds = false;
+                selectedDuration.value = 0;
             }
 
             // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
             int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
 
-            selectedDurationMinutes = rotaryEncoderRotationAppliedSexagesimal(selectedDurationMinutes, rotation, MAX_60MINUTES_SECONDS);
-            tm1637RenderDurationMinutes(selectedDurationMinutes);
+            if (selectedDuration.minutesNotSeconds)
+            {
+                selectedDuration.value =
+                    rotaryEncoderRotationAppliedSexagesimal(selectedDuration.value, rotation, MAX_24HOURS_MINUTES);
+                if (0 == selectedDuration.value)
+                {
+                    selectedDuration.minutesNotSeconds = false;
+                    selectedDuration.value = 59;
+                }
+                else
+                {
+                    // intentionally empty
+                }
+            }
+            else
+            {
+                selectedDuration.value =
+                    rotaryEncoderRotationAppliedSexagesimal(selectedDuration.value, rotation, 60);
+                if (60 == selectedDuration.value)
+                {
+                    selectedDuration.minutesNotSeconds = true;
+                    selectedDuration.value = 1;
+                }
+                else
+                {
+                    // intentionally empty
+                }
+            }
+            tm1637RenderDurationMinutes(selectedDuration.value);
+
+            if (!selectedDuration.minutesNotSeconds)
+            {
+                tm1637DisplayData[0] = tm1637Characters[tm1637Character_minus];
+                tm1637DisplayData[1] = tm1637Characters[tm1637Character_minus];
+            }
+            else
+            {
+                // intentionally empty
+            }
 
             // Duration const duration = millis();
             // tm1637RenderTime(&duration);
