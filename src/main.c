@@ -1,3 +1,4 @@
+#include "auxiliaries.h"
 #include "buttontimed.h"
 #include "rotaryencoder.h"
 #include "static_assert.h"
@@ -80,7 +81,7 @@ Duration millis()
 }
 
 // The name of this function does not really matter [apart from good coding practices], what
-// is im portant is that it is declared the ISR handler via "__interrupt (x)" for the ISR-vector.
+// is important is that it is declared the ISR handler via "__interrupt (x)" for the ISR-vector.
 void TM0_Isr(void) __interrupt (TF0_VECTOR)
 {
     /* action to be taken when timer 0 overflows */
@@ -110,27 +111,6 @@ ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
 }
 
 // Rotation conversion
-
-int8_t absoluteValue_int8(int8_t const value)
-{
-    int8_t absolute = value;
-    if (0 > value)
-    {
-        if (SCHAR_MIN == value)
-        {
-            absolute = SCHAR_MAX;
-        }
-        else
-        {
-            absolute = -1 * value;
-        }
-    }
-    else
-    {
-        // absolute = value;
-    }
-    return absolute;
-}
 
 uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation)
 {

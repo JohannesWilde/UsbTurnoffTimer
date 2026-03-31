@@ -1,4 +1,17 @@
 
+# Auxiliaries
+
+add_library(Auxiliaries_absoluteValue_int8
+    auxiliaries_absoluteValue_int8.c
+)
+
+add_library(Auxiliaries INTERFACE)
+
+target_link_libraries(Auxiliaries
+    INTERFACE Auxiliaries_absoluteValue_int8
+)
+
+
 # ButtonTimed
 
 add_library(ButtonTimed_init

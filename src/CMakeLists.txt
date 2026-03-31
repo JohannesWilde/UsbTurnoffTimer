@@ -6,9 +6,11 @@ add_executable(${PROJECT_NAME}
     main.c
     rotaryencoder.h
     stc8g.h
+    auxiliaries.h
 )
 
 target_link_libraries(${PROJECT_NAME}
+    PRIVATE Auxiliaries
     PRIVATE ButtonTimed
     PRIVATE RotaryEncoder
 )
