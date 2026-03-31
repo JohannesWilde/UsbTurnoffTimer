@@ -13,6 +13,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE Auxiliaries
     PRIVATE ButtonTimed
     PRIVATE RotaryEncoder
+    PRIVATE Specifics
 )
 
 ihx_to_hex(${PROJECT_NAME})

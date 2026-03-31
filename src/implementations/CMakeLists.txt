@@ -56,3 +56,23 @@ target_link_libraries(RotaryEncoder
     INTERFACE RotaryEncoder_init
     INTERFACE RotaryEncoder_update
 )
+
+# Specifics
+
+add_library(Specifics_buttonRawDurationConversion_
+    specifics_buttonRawDurationConversion_.c
+)
+add_library(Specifics_rotaryEncoderRotationAppliedToMinutes
+    specifics_rotaryEncoderRotationAppliedToMinutes.c
+)
+add_library(Specifics_rotaryEncoderRotationToMinutesConversion
+    specifics_rotaryEncoderRotationToMinutesConversion.c
+)
+
+add_library(Specifics INTERFACE)
+
+target_link_libraries(Specifics
+    INTERFACE Specifics_buttonRawDurationConversion_
+    INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutes
+    INTERFACE Specifics_rotaryEncoderRotationToMinutesConversion
+)

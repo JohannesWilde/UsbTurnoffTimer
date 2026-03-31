@@ -1,8 +1,8 @@
-#include "auxiliaries.h"
 #include "buttontimed.h"
 #include "configuration.h"
 #include "pinout.h"
 #include "rotaryencoder.h"
+#include "specifics.h"
 #include "static_assert.h"
 #include "stc8g.h"
 
@@ -54,106 +54,6 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
     /* action to be taken when timer 0 overflows */
     COMPILE_TIME_ASSERT((1000ull / F_SYS_TICK) * F_SYS_TICK == 1000ull); // Prevent numeric precision loss in accumulation of ms.
     milliseconds_ += 1000 / F_SYS_TICK;
-}
-
-
-// Button duration conversion
-
-ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration)
-{
-    // 20 Hz update rate for button - but 1000 Hz for rotaryEncoder
-    COMPILE_TIME_ASSERT(1000 == F_SYS_TICK);
-
-    ButtonStateDuration duration = buttonDurationShort;
-    if (10 < rawDuration) // 500 ms
-    {
-        duration = buttonDurationLong;
-    }
-    else
-    {
-        // duration = buttonDurationShort;
-    }
-
-    return duration;
-}
-
-// Rotation conversion
-
-uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation)
-{
-    uint8_t minutes = 0;
-
-    if (0 == rotation)
-    {
-        // minutes = 0;
-    }
-    else if (3 > rotation)
-    {
-        minutes = 1;
-    }
-    else if (5 > rotation)
-    {
-        minutes = 5;
-    }
-    else if (7 > rotation)
-    {
-        minutes = 15;
-    }
-    else if (9 > rotation)
-    {
-        minutes = 30;
-    }
-    else if (11 > rotation)
-    {
-        minutes = 60;
-    }
-    else
-    {
-        minutes = 240;
-    }
-
-    return minutes;
-}
-
-// Limited to [0 hours, 24 hours].
-uint16_t rotaryEncoderRotationAppliedToMinutes(uint16_t const minutes, int8_t const rotation)
-{
-    #define MAX_24HOURS_MINUTES ((uint16_t)(24) * 60)
-
-    uint16_t const deltaMinutes = rotaryEncoderRotationToMinutesConversion(absoluteValue_int8(rotation));
-
-    uint16_t adaptedMinutes = minutes;
-
-    if (0 == rotation)
-    {
-        // adaptedMinutes = minutes;
-    }
-    else if (0 > rotation)
-    {
-        // subtract
-        if (minutes > deltaMinutes)
-        {
-            adaptedMinutes = minutes - deltaMinutes;
-        }
-        else
-        {
-            adaptedMinutes = 0;
-        }
-    }
-    else // if (0 < rotation)
-    {
-        // add
-        if ((MAX_24HOURS_MINUTES - minutes) > deltaMinutes)
-        {
-            adaptedMinutes = minutes + deltaMinutes;
-        }
-        else
-        {
-            adaptedMinutes = MAX_24HOURS_MINUTES;
-        }
-    }
-
-    return adaptedMinutes;
 }
 
 
