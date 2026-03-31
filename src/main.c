@@ -558,6 +558,7 @@ void main()
             {
                 if (0 == displayTurnOffCounter)
                 {
+                    tm1637Show();
                     tm1637DisplayCommand(/*on*/ true, /*brightness*/ 0x03);
                 }
                 else
