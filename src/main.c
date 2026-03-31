@@ -5,6 +5,7 @@
 #include "prescaler.h"
 #include "rotaryencoder.h"
 #include "specifics.h"
+#include "statemachine.h"
 #include "static_assert.h"
 #include "stc8g.h"
 #include "tm1637display.h"
@@ -43,6 +44,7 @@ static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
 static ButtonTimed pushButton;
 static RotaryEncoder rotaryEncoder;
 
+static Statemachine statemachine;
 
 
 void main()

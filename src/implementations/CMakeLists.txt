@@ -59,6 +59,22 @@ target_link_libraries(RotaryEncoder
 
 # Specifics
 
+add_library(Statemachine_Basics
+    statemachine_Basics.c
+)
+add_library(Statemachine_Reset
+    statemachine_Reset.c
+)
+
+add_library(Statemachine INTERFACE)
+
+target_link_libraries(Statemachine
+    INTERFACE Statemachine_Basics
+    INTERFACE statemachine_Reset
+)
+
+# Specifics
+
 add_library(Specifics_buttonRawDurationConversion_
     specifics_buttonRawDurationConversion_.c
 )

@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     tm1637driver.c
     tm1637driver.h
     tm1637display.h
+    statemachine.h
     unused.h
 )
 
@@ -21,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ButtonTimed
     PRIVATE RotaryEncoder
     PRIVATE Specifics
+    PRIVATE Statemachine
     PRIVATE Tm1637Display
 )
 
