@@ -51,7 +51,7 @@ typedef struct
 {
     uint16_t delayDurationMinutes;
     MinutesOrSeconds offDuration;
-    Timestamp nextTimeToAct;
+    Timestamp waitStartTimestamp;
     bool outputOn;
     uint8_t cycleCounter;
 }
@@ -247,8 +247,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         }
 
         // Calculate turn off time.
-        Timestamp const now = millis();
-        data->nextTimeToAct = now + (data->delayDurationMinutes * (60ull * 1000ull));
+        data->waitStartTimestamp = millis();
 
         PWR_SWITCH_PIN = 1;
         data->outputOn = true;
@@ -333,19 +332,19 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         // Determine delayDurationMinutes as per current time.
 
         Timestamp const now = millis();
-        Duration durationTillNextAction = data->nextTimeToAct - now;
+        Duration remainingDelay = data->waitStartTimestamp - now;
 
-        durationTillNextAction /= 1000;  // ms -> seconds
+        remainingDelay /= 1000;  // ms -> seconds
         // compensate off-duration
         if (!data->outputOn)
         {
             if (data->offDuration.minutesNotSeconds)
             {
-                durationTillNextAction -= data->offDuration.value * 60ull;
+                remainingDelay -= data->offDuration.value * 60ull;
             }
             else
             {
-                durationTillNextAction -= data->offDuration.value;
+                remainingDelay -= data->offDuration.value;
             }
         }
         else
@@ -353,10 +352,16 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
             // intentionally empty
         }
 
-        durationTillNextAction /= 60;  // seconds -> minutes
+        remainingDelay /= 60;  // seconds -> minutes
+        #ifndef NDEBUG
+        // At most 24 hours selectable for delay and offset - so I should never exceed that.
+        while (((Duration)UINT_MAX) < remainingDelay)
+        {
+        }
+        #endif // NDEBUG
         // durationTillNextAction %= MAX_24HOURS_MINUTES;   // handle numeric overflow of Duration data type
 
-        data->delayDurationMinutes = durationTillNextAction;
+        data->delayDurationMinutes = remainingDelay;
 
 
         // Turn output back on.
