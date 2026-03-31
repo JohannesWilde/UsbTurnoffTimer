@@ -70,7 +70,7 @@ add_library(Statemachine INTERFACE)
 
 target_link_libraries(Statemachine
     INTERFACE Statemachine_Basics
-    INTERFACE statemachine_Reset
+    INTERFACE Statemachine_Reset
 )
 
 # Specifics
