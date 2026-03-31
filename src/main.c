@@ -3,6 +3,7 @@
 #include "configuration.h"
 #include "i2c_bitbang.h"
 #include "pinout.h"
+#include "prescaler.h"
 #include "rotaryencoder.h"
 #include "specifics.h"
 #include "static_assert.h"
@@ -32,23 +33,6 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 
 
 // Prescaler for different time domains.
-
-// Update prescaler value. Return true on underrun [i.e. processing should happen].
-// The priodicity of the prescaler is (initialValue + 1).
-inline bool updatePrescaler(uint8_t * value, uint8_t const initialValue)
-{
-    bool const valueUnderrun = (0 == (*value));
-    if (valueUnderrun)
-    {
-        *value = initialValue;
-    }
-    else
-    {
-        --(*value);
-    }
-    return valueUnderrun;
-}
-
 #define PRE_SCALER_ONE_INIT (50 - 1)    // 1000 Hz -> 20 Hz
 #define PRE_SCALER_TWO_INIT (10 - 1)    // 20 Hz -> 2 Hz
 
