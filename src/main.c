@@ -45,6 +45,18 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 static uint8_t displayTurnOffCounter = DISPLAY_OFF_TIMEOUT;
 
+static inline void tm1637ShowIfOnOnly()
+{
+    if (0 != displayTurnOffCounter)
+    {
+        tm1637Show();
+    }
+    else
+    {
+        // intentionally empty
+    }
+}
+
 // HW inputs
 static ButtonTimed pushButton;
 static RotaryEncoder rotaryEncoder;
@@ -83,7 +95,7 @@ FunctionPointerPrototype statemachineHandlerConfigureDelay(StatemachineStage sta
         tm1637DisplayData[2] = tm1637Characters[tm1637Character_a];
         tm1637DisplayData[3] = tm1637Characters[tm1637Character_y];
         tm1637RenderColon(false);
-        tm1637Show();
+        tm1637ShowIfOnOnly();
 
         // Show above text for this long.
         data->cycleCounter = 20;
@@ -130,7 +142,7 @@ FunctionPointerPrototype statemachineHandlerConfigureDelay(StatemachineStage sta
         if (updateDisplay)
         {
             tm1637RenderDurationMinutes(data->delayDurationMinutes);
-            tm1637Show();
+            tm1637ShowIfOnOnly();
         }
         else
         {
@@ -160,7 +172,7 @@ FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage s
         tm1637DisplayData[2] = tm1637Characters[tm1637Character_f];
         tm1637DisplayData[3] = tm1637Characters[tm1637Character_none];
         tm1637RenderColon(false);
-        tm1637Show();
+        tm1637ShowIfOnOnly();
 
         // Show above text for this long.
         data->cycleCounter = 20;
@@ -206,7 +218,7 @@ FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage s
         if (updateDisplay)
         {
             tm1637RenderDurationMinutesOrSeconds(&data->offDuration);
-            tm1637Show();
+            tm1637ShowIfOnOnly();
         }
         else
         {
@@ -260,7 +272,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         data->outputOn = true;
 
         tm1637RenderColon(false);
-        tm1637Show();
+        tm1637ShowIfOnOnly();
 
         break;
     }
@@ -379,7 +391,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
                 uint16_t const displayDuration = remainingDelay;
 
                 tm1637RenderDurationMinutes(displayDuration);
-                tm1637Show();
+                tm1637ShowIfOnOnly();
             }
             else
             {
