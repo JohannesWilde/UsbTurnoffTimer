@@ -162,6 +162,50 @@ FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage s
     }
     case StatemachineStageProcess:
     {
+        int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+        bool updateDisplay = false;
+
+        if (0 == data->cycleCounter)
+        {
+            if (buttonIsDown(&pushButton))
+            {
+                // Ignore any input while the button is pressed.
+            }
+            else if (buttonReleasedAfterShort(&pushButton))
+            {
+                nextHandler = &statemachineHandlerConfigureDelay;
+            }
+            else if (buttonReleasedAfterLong(&pushButton))
+            {
+                nextHandler = &statemachineHandlerCountdown;
+            }
+            else
+            {
+                // handle rotation
+                rotaryEncoderRotationAppliedToMinutesOrSeconds(&data->offDuration, rotation);
+                updateDisplay = (0 != rotation);
+            }
+        }
+        else if ((1 == data->cycleCounter) || /*early exit*/ (0 != rotation))
+        {
+            data->cycleCounter = 0;
+            updateDisplay = true;
+            tm1637RenderColon(false);
+        }
+        else // if (1 != data->cycleCounter)
+        {
+            --data->cycleCounter;
+        }
+
+        if (updateDisplay)
+        {
+            tm1637RenderDurationMinutesOrSeconds(&data->offDuration);
+            tm1637Show();
+        }
+        else
+        {
+            // intentionally empty
+        }
         break;
     }
     case StatemachineStageDeinit:
