@@ -11,6 +11,7 @@
 #include "tm1637display.h"
 #include "tm1637driver.h"
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -224,14 +225,82 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
     {
     case StatemachineStageInit:
     {
+        tm1637DisplayData[0] = tm1637Characters[tm1637Character_w];
+        tm1637DisplayData[1] = tm1637Characters[tm1637Character_a];
+        tm1637DisplayData[2] = tm1637Characters[tm1637Character_i];
+        tm1637DisplayData[3] = tm1637Characters[tm1637Character_t];
+        tm1637RenderColon(false);
+        tm1637Show();
+
+        // Show above text for this long.
+        COMPILE_TIME_ASSERT(UCHAR_MAX - 20 > PRE_SCALER_TWO_INIT);
+        data->cycleCounter = PRE_SCALER_TWO_INIT + 20;
         break;
     }
     case StatemachineStageProcess:
     {
+        int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+
+        bool updateDisplay = false;
+
+        if (PRE_SCALER_TWO_INIT >= data->cycleCounter)
+        {
+            if (buttonReleasedAfterLong(&pushButton))
+            {
+                nextHandler = &statemachineHandlerConfigureDelay;
+            }
+            else
+            {
+                // ignore every other input
+
+
+                if (updatePrescaler(&data->cycleCounter, PRE_SCALER_TWO_INIT))
+                {
+                    // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1).
+
+                    tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
+                    // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
+
+                    updateDisplay = true;
+                }
+                else
+                {
+                    // intentionally empty
+                }
+            }
+        }
+        else if (((1 + PRE_SCALER_TWO_INIT) == data->cycleCounter) || /*early exit*/ (0 != rotation))
+        {
+            data->cycleCounter = 0;
+            updateDisplay = true;
+            tm1637RenderColon(true);
+        }
+        else
+        {
+            --data->cycleCounter;
+        }
+
+        if (updateDisplay)
+        {
+            // data->nextTimeToAct
+            Timestamp const now = millis() * 60;
+            tm1637RenderDuration(&now);
+            tm1637Show();
+        }
+        else
+        {
+            // intentionally empty
+        }
+
         break;
     }
     case StatemachineStageDeinit:
     {
+        // Determine delayDurationMinutes as per current time.
+
+        // Turn output back on.
+        PWR_SWITCH_PIN = 1;
+
         break;
     }
     }
@@ -346,21 +415,6 @@ void main()
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
             statemachineProcess(&statemachine, &statemachineData);
-
-            if (updatePrescaler(&preScalerTwo, PRE_SCALER_TWO_INIT))
-            {
-                // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1).
-
-                PWR_SWITCH_PIN ^= 1;
-
-                // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
-                // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-            }
-            else
-            {
-                // intentionally empty
-            }
-
 
             // if (buttonReleasedAfterLong(&pushButton))
             // {
