@@ -1,4 +1,4 @@
-#include "rotaryencoder.h"
+#include "../rotaryencoder.h"
 
 #include <limits.h>
 

@@ -1,4 +1,4 @@
-#include "buttontimed.h"
+#include "../buttontimed.h"
 
 #include <limits.h>
 
