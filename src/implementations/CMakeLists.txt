@@ -76,3 +76,41 @@ target_link_libraries(Specifics
     INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutes
     INTERFACE Specifics_rotaryEncoderRotationToMinutesConversion
 )
+
+# Tm1637Display
+
+add_library(Tm1637Display_Characters
+    tm1637display_Characters.c
+)
+add_library(Tm1637Display_DisplayData
+    tm1637display_DisplayData.c
+)
+add_library(Tm1637Display_RenderColon
+    tm1637display_RenderColon.c
+)
+add_library(Tm1637Display_RenderDuration
+    tm1637display_RenderDuration.c
+)
+add_library(Tm1637Display_RenderDurationMinutes
+    tm1637display_RenderDurationMinutes.c
+)
+add_library(Tm1637Display_RenderNumberSigned
+    tm1637display_RenderNumberSigned.c
+)
+add_library(Tm1637display_RenderNumberUnsigned
+    tm1637display_RenderNumberUnsigned.c
+)
+
+add_library(Tm1637Display INTERFACE)
+
+target_link_libraries(Tm1637Display
+    INTERFACE Tm1637Display_Characters
+    INTERFACE Tm1637Display_DisplayData
+    INTERFACE Tm1637Display_RenderColon
+    INTERFACE Tm1637Display_RenderDuration
+    INTERFACE Tm1637Display_RenderDurationMinutes
+    INTERFACE Tm1637Display_RenderNumberSigned
+    INTERFACE Tm1637display_RenderNumberUnsigned
+)
+
+

@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
     i2c_bitbang.h
     tm1637driver.c
     tm1637driver.h
+    tm1637display.h
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -18,6 +19,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ButtonTimed
     PRIVATE RotaryEncoder
     PRIVATE Specifics
+    PRIVATE Tm1637Display
 )
 
 ihx_to_hex(${PROJECT_NAME})
