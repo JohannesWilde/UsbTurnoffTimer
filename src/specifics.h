@@ -6,13 +6,16 @@
 #include <stdint.h>
 
 
+#define MAX_24HOURS_MINUTES ((uint16_t)(24) * 60)
+#define MAX_60MINUTES_SECONDS ((uint16_t)(60) * 60)
+
 typedef uint32_t Duration;
 
 Duration millis();
 
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration);
 
-uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation);
-uint16_t rotaryEncoderRotationAppliedToMinutes(uint16_t const minutes, int8_t const rotation);
+uint8_t rotaryEncoderRotationToValueConversion(uint8_t const rotation);
+uint16_t rotaryEncoderRotationAppliedSexagesimal(uint16_t const value, int8_t const rotation, uint16_t const max);
 
 #endif // SPECIFICS_H

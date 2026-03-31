@@ -129,8 +129,7 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
-    // uint16_t selectedDurationMinutes = 0;
-    uint8_t index = 0;
+    uint16_t selectedDurationMinutes = 0;
 
     while (true)
     {
@@ -150,24 +149,6 @@ void main()
 
                 // tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
                 // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-
-
-                tm1637DisplayData[0] = tm1637DisplayData[1];
-                tm1637DisplayData[1] = tm1637DisplayData[2];
-                tm1637DisplayData[2] = tm1637DisplayData[3];
-
-                tm1637DisplayData[3] = tm1637Characters[index];
-
-                if (tm1637Character_m == index)
-                {
-                    index = 0;
-                }
-                else
-                {
-                    ++index;
-                }
-
-                tm1637Show();
             }
             else
             {
@@ -177,21 +158,21 @@ void main()
 
 
 
-            // if (buttonReleasedAfterLong(&pushButton))
-            // {
-            //     selectedDurationMinutes = 0;
-            // }
+            if (buttonReleasedAfterLong(&pushButton))
+            {
+                selectedDurationMinutes = 0;
+            }
 
-            // // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+            // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
 
-            // selectedDurationMinutes = rotaryEncoderRotationAppliedToMinutes(selectedDurationMinutes, rotation);
-            // tm1637RenderDurationMinutes(selectedDurationMinutes);
+            selectedDurationMinutes = rotaryEncoderRotationAppliedSexagesimal(selectedDurationMinutes, rotation, MAX_60MINUTES_SECONDS);
+            tm1637RenderDurationMinutes(selectedDurationMinutes);
 
-            // // Duration const duration = millis();
-            // // tm1637RenderTime(&duration);
+            // Duration const duration = millis();
+            // tm1637RenderTime(&duration);
 
-            // tm1637Show();
+            tm1637Show();
         }
         else
         {

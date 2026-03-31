@@ -1,7 +1,7 @@
 #include "../specifics.h"
 
 
-uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation)
+uint8_t rotaryEncoderRotationToValueConversion(uint8_t const rotation)
 {
     uint8_t minutes = 0;
 
