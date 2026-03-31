@@ -43,6 +43,7 @@ extern uint8_t tm1637DisplayData[4];
 
 void tm1637RenderDuration(Duration const * const duration);
 void tm1637RenderDurationMinutes(uint16_t const duration);
+void tm1637RenderDurationMinutesOrSeconds(MinutesOrSeconds const * duration);
 
 void tm1637RenderColon(bool const enabled);
 

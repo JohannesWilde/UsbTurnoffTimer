@@ -68,6 +68,9 @@ add_library(Specifics_millis
 add_library(Specifics_rotaryEncoderRotationAppliedToMinutes
     specifics_rotaryEncoderRotationAppliedToMinutes.c
 )
+add_library(Specifics_rotaryEncoderRotationAppliedToMinutesOrSeconds
+    specifics_rotaryEncoderRotationAppliedToMinutesOrSeconds.c
+)
 add_library(Specifics_rotaryEncoderRotationToMinutesConversion
     specifics_rotaryEncoderRotationToMinutesConversion.c
 )
@@ -78,6 +81,7 @@ target_link_libraries(Specifics
     INTERFACE Specifics_buttonRawDurationConversion_
     INTERFACE Specifics_millis
     INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutes
+    INTERFACE Specifics_rotaryEncoderRotationAppliedToMinutesOrSeconds
     INTERFACE Specifics_rotaryEncoderRotationToMinutesConversion
 )
 
@@ -98,6 +102,9 @@ add_library(Tm1637Display_RenderDuration
 add_library(Tm1637Display_RenderDurationMinutes
     tm1637display_RenderDurationMinutes.c
 )
+add_library(Tm1637Display_RenderDurationMinutesOrSeconds
+    tm1637display_RenderDurationMinutesOrSeconds.c
+)
 add_library(Tm1637Display_RenderNumberSigned
     tm1637display_RenderNumberSigned.c
 )
@@ -113,6 +120,7 @@ target_link_libraries(Tm1637Display
     INTERFACE Tm1637Display_RenderColon
     INTERFACE Tm1637Display_RenderDuration
     INTERFACE Tm1637Display_RenderDurationMinutes
+    INTERFACE Tm1637Display_RenderDurationMinutesOrSeconds
     INTERFACE Tm1637Display_RenderNumberSigned
     INTERFACE Tm1637display_RenderNumberUnsigned
 )
