@@ -7,6 +7,8 @@ add_executable(${PROJECT_NAME}
     rotaryencoder.h
     stc8g.h
     auxiliaries.h
+    i2c_bitbang.c
+    i2c_bitbang.h
 )
 
 target_link_libraries(${PROJECT_NAME}
