@@ -44,7 +44,17 @@ static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
 static ButtonTimed pushButton;
 static RotaryEncoder rotaryEncoder;
 
+// Statemachine
+
+typedef struct
+{
+    uint8_t cycleCounter;
+}
+StatemachineData;
+
+static StatemachineData statemachineData;
 static Statemachine statemachine;
+
 
 
 void main()
@@ -132,6 +142,10 @@ void main()
 
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
+
+    statemachineInit(&statemachine, &statemachineNoopHandler);
+
+
     MinutesOrSeconds selectedDuration = {
         .minutesNotSeconds = false,
         .value = 0
@@ -146,6 +160,8 @@ void main()
         {
             // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1).
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
+
+            statemachineProcess(&statemachine, &statemachineData);
 
             if (updatePrescaler(&preScalerTwo, PRE_SCALER_TWO_INIT))
             {
