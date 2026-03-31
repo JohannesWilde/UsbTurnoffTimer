@@ -4,13 +4,13 @@ add_subdirectory(implementations)
 add_executable(${PROJECT_NAME}
     buttontimed.h
     main.c
-    implementations/rotaryencoder.c
     rotaryencoder.h
     stc8g.h
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE ButtonTimed
+    PRIVATE RotaryEncoder
 )
 
 ihx_to_hex(${PROJECT_NAME})

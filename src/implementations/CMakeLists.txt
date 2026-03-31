@@ -1,4 +1,6 @@
 
+# ButtonTimed
+
 add_library(ButtonTimed_init
     buttontimed_init.c
 )
@@ -19,4 +21,25 @@ target_link_libraries(ButtonTimed
     INTERFACE ButtonTimed_releasedAfterLong
     INTERFACE ButtonTimed_releasedAfterShort
     INTERFACE ButtonTimed_update
+)
+
+
+# RotaryEncoder
+
+add_library(RotaryEncoder_getAndResetAccumulatedRotation
+    rotaryencoder_getAndResetAccumulatedRotation.c
+)
+add_library(RotaryEncoder_init
+    rotaryencoder_init.c
+)
+add_library(RotaryEncoder_update
+    rotaryencoder_update.c
+)
+
+add_library(RotaryEncoder INTERFACE)
+
+target_link_libraries(RotaryEncoder
+    INTERFACE RotaryEncoder_getAndResetAccumulatedRotation
+    INTERFACE RotaryEncoder_init
+    INTERFACE RotaryEncoder_update
 )

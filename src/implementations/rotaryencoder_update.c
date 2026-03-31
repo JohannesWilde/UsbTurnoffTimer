@@ -3,13 +3,6 @@
 #include <limits.h>
 
 
-void rotaryEncoderInit(RotaryEncoder * rotaryEncoder, bool const stateA, bool const stateB)
-{
-    rotaryEncoder->rotation = 0;
-    rotaryEncoder->stateAPrevious = stateA;
-    rotaryEncoder->stateBPrevious = stateB;
-}
-
 void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool const stateB)
 {
     bool const toggledA = (stateA != rotaryEncoder->stateAPrevious);
@@ -87,11 +80,4 @@ void rotaryEncoderUpdate(RotaryEncoder * rotaryEncoder, bool const stateA, bool 
     {
         // intentionally empty
     }
-}
-
-int8_t rotaryEncoderGetAndResetAccumulatedRotation(RotaryEncoder * rotaryEncoder)
-{
-    int8_t const copy = rotaryEncoder->rotation;
-    rotaryEncoder->rotation = 0;
-    return copy;
 }
