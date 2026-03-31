@@ -3,11 +3,11 @@
 #include "../8051_helpers.h"
 
 
-extern volatile Duration milliseconds_;
+extern volatile Timestamp milliseconds_;
 
-Duration millis()
+Timestamp millis()
 {
-    Duration copy = 0;
+    Timestamp copy = 0;
     noInterrupts();
     copy = milliseconds_;
     interrupts();

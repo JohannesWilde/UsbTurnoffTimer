@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 
-volatile Duration milliseconds_;
+volatile Timestamp milliseconds_;
 
 // The name of this function does not really matter [apart from good coding practices], what
 // is important is that it is declared the ISR handler via "__interrupt (x)" for the ISR-vector.
@@ -49,6 +49,9 @@ static RotaryEncoder rotaryEncoder;
 typedef struct
 {
     uint8_t cycleCounter;
+    uint16_t delayDurationMinutes;
+    MinutesOrSeconds offDuration;
+    Timestamp nextTimeToAct;
 }
 StatemachineData;
 

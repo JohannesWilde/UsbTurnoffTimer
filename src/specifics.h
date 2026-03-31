@@ -10,6 +10,7 @@
 #define MAX_60MINUTES_SECONDS ((uint16_t)(60) * 60)
 
 typedef uint32_t Duration;
+typedef uint32_t Timestamp;
 
 typedef struct
 {
@@ -19,7 +20,7 @@ typedef struct
 MinutesOrSeconds;
 
 
-Duration millis();
+Timestamp millis();
 
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration);
 
