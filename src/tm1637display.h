@@ -31,7 +31,10 @@ typedef enum
     tm1637Character_none = 17,
     tm1637Character_l = 18,
     tm1637Character_y = 19,
+    tm1637Character_h = 20,
+    tm1637Character_m = 21,
     tm1637Character_o = tm1637Character_0,
+    tm1637Character_s = tm1637Character_5,
 } Tm1637Character;
 
 extern uint8_t const tm1637Characters[];
