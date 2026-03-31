@@ -72,14 +72,69 @@ FunctionPointerPrototype statemachineHandlerConfigureDelay(StatemachineStage sta
     {
     case StatemachineStageInit:
     {
+        tm1637DisplayData[0] = tm1637Characters[tm1637Character_d];
+        tm1637DisplayData[1] = tm1637Characters[tm1637Character_l];
+        tm1637DisplayData[2] = tm1637Characters[tm1637Character_a];
+        tm1637DisplayData[3] = tm1637Characters[tm1637Character_y];
+        tm1637RenderColon(false);
+        tm1637Show();
+
+        // Show above text for this long.
+        data->cycleCounter = 20;
         break;
     }
     case StatemachineStageProcess:
     {
+        int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+        bool updateDisplay = false;
+
+        if (0 == data->cycleCounter)
+        {
+            if (buttonIsDown(&pushButton))
+            {
+                // Ignore any input while the button is pressed.
+            }
+            else if (buttonReleasedAfterShort(&pushButton))
+            {
+                nextHandler = &statemachineHandlerConfigureTimeOff;
+            }
+            else if (buttonReleasedAfterLong(&pushButton))
+            {
+                nextHandler = &statemachineHandlerCountdown;
+            }
+            else
+            {
+                // handle rotation
+                data->delayDurationMinutes =
+                        rotaryEncoderRotationAppliedSexagesimal(data->delayDurationMinutes, rotation, MAX_24HOURS_MINUTES);
+                updateDisplay = (0 != rotation);
+            }
+        }
+        else if ((1 == data->cycleCounter) || /*early exit*/ (0 != rotation))
+        {
+            data->cycleCounter = 0;
+            updateDisplay = true;
+            tm1637RenderColon(true);
+        }
+        else // if (1 != data->cycleCounter)
+        {
+            --data->cycleCounter;
+        }
+
+        if (updateDisplay)
+        {
+            tm1637RenderDurationMinutes(data->delayDurationMinutes);
+            tm1637Show();
+        }
+        else
+        {
+            // intentionally empty
+        }
         break;
     }
     case StatemachineStageDeinit:
     {
+        // intentionally empty
         break;
     }
     }
@@ -94,6 +149,15 @@ FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage s
     {
     case StatemachineStageInit:
     {
+        tm1637DisplayData[0] = tm1637Characters[tm1637Character_o];
+        tm1637DisplayData[1] = tm1637Characters[tm1637Character_f];
+        tm1637DisplayData[2] = tm1637Characters[tm1637Character_f];
+        tm1637DisplayData[3] = tm1637Characters[tm1637Character_none];
+        tm1637RenderColon(false);
+        tm1637Show();
+
+        // Show above text for this long.
+        data->cycleCounter = 20;
         break;
     }
     case StatemachineStageProcess:
@@ -131,7 +195,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
 }
 
 
-
+// main()
 
 void main()
 {
@@ -219,7 +283,7 @@ void main()
     // buttonTimedInit(&pushButton);
     rotaryEncoderInit(&rotaryEncoder, ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN);
 
-    statemachineInit(&statemachine, &statemachineNoopHandler);
+    statemachineInit(&statemachine, &statemachineHandlerConfigureDelay);
 
 
     MinutesOrSeconds selectedDuration = {
@@ -254,30 +318,28 @@ void main()
             }
 
 
-            if (buttonReleasedAfterLong(&pushButton))
-            {
-                selectedDuration.minutesNotSeconds = false;
-                selectedDuration.value = 0;
-            }
+            // if (buttonReleasedAfterLong(&pushButton))
+            // {
+            //     selectedDuration.minutesNotSeconds = false;
+            //     selectedDuration.value = 0;
+            // }
 
-            // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-            int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
+            // // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
+            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
 
-            rotaryEncoderRotationAppliedToMinutesOrSeconds(&selectedDuration, rotation);
+            // rotaryEncoderRotationAppliedToMinutesOrSeconds(&selectedDuration, rotation);
 
-            tm1637RenderDurationMinutesOrSeconds(&selectedDuration);
+            // tm1637RenderDurationMinutesOrSeconds(&selectedDuration);
 
-            // Duration const duration = millis();
-            // tm1637RenderTime(&duration);
+            // // Duration const duration = millis();
+            // // tm1637RenderTime(&duration);
 
-            tm1637Show();
+            // tm1637Show();
         }
         else
         {
             // intentionally empty
         }
-
-
 
         PCON |= (1 << 0);  // PCON.IDL[0] = 1 - Enter idle mode
     }
