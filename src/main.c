@@ -45,7 +45,7 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 static uint8_t displayTurnOffCounter = DISPLAY_OFF_TIMEOUT;
 
-static inline void tm1637ShowIfOnOnly()
+static void tm1637ShowIfOnOnly()
 {
     if (0 != displayTurnOffCounter)
     {
