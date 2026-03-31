@@ -357,14 +357,17 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
 
             if (updateDisplay)
             {
-                if (60ull * 1000ull >= remainingDelay)
+                if (60ull * 60ull * 1000ull > remainingDelay)
                 {
+                    // Always round up by second.
+                    remainingDelay += 999ull;
                     // Make below renderDuration show the seconds.
                     remainingDelay *= 60;
                 }
                 else
                 {
-                    // intentionally empty
+                    // Always round up by minute.
+                    remainingDelay += 59999ll;
                 }
                 tm1637RenderDuration(&remainingDelay);
                 tm1637Show();
