@@ -25,21 +25,7 @@
 #define DIO_MODE_OPEN_DRAIN_M1 1
 
 
-
-
-
-// Keep this static variable uninitialized for smaller code size.
-// It will be filled with 0s before the program is executed anyway.
-static volatile Duration milliseconds_;
-
-Duration millis()
-{
-    Duration copy = 0;
-    noInterrupts();
-    copy = milliseconds_;
-    interrupts();
-    return copy;
-}
+volatile Duration milliseconds_;
 
 // The name of this function does not really matter [apart from good coding practices], what
 // is important is that it is declared the ISR handler via "__interrupt (x)" for the ISR-vector.

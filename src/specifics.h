@@ -8,6 +8,8 @@
 
 typedef uint32_t Duration;
 
+Duration millis();
+
 ButtonStateDuration buttonRawDurationConversion_(uint8_t const rawDuration);
 
 uint8_t rotaryEncoderRotationToMinutesConversion(uint8_t const rotation);
