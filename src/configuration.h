@@ -8,11 +8,22 @@
 #define F_SYS_TICK 1000ull  // Hz
 
 
-#define PUSH_BUTTON_PORT_NUMBER 3
-#define PUSH_BUTTON_PIN_NUMBER 4  // for final layout 0 - but right now avoid conflicts with programming pins.
+/**
+ * STC8G1K08 [SOP8]
+ *
+ *                     +----------+
+ *  rotary encoder A --+ 1      8 +-- TM1637 I2C CLK
+ *               VCC --+ 2      7 +-- TM1637 I2C Data
+ *  rotary encoder B --+ 3      6 +-- MOSFET            [HIGH - conductive, LOW - blocking]
+ *               GND --+ 4      5 +-- push button       [pull-up, LOW when pushed]
+ *                     +----------+
+ */
 
-#define PWR_SWITCH_PORT_NUMBER 1  // 3
-#define PWR_SWITCH_PIN_NUMBER 2  // 1
+#define PUSH_BUTTON_PORT_NUMBER 3
+#define PUSH_BUTTON_PIN_NUMBER 0
+
+#define PWR_SWITCH_PORT_NUMBER 3
+#define PWR_SWITCH_PIN_NUMBER 1
 
 #define ROTARY_ENCODER_A_PORT_NUMBER 5
 #define ROTARY_ENCODER_A_PIN_NUMBER 4
