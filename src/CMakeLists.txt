@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     tm1637driver.c
     tm1637driver.h
     tm1637display.h
+    unused.h
 )
 
 target_link_libraries(${PROJECT_NAME}
