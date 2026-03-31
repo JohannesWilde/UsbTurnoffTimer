@@ -1,7 +1,6 @@
 #include "8051_helpers.h"
 #include "buttontimed.h"
 #include "configuration.h"
-#include "i2c_bitbang.h"
 #include "pinout.h"
 #include "prescaler.h"
 #include "rotaryencoder.h"
@@ -11,7 +10,6 @@
 #include "tm1637display.h"
 #include "tm1637driver.h"
 
-#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -33,8 +31,10 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 
 
 // Prescaler for different time domains.
-#define PRE_SCALER_ONE_INIT (50 - 1)    // 1000 Hz -> 20 Hz
-#define PRE_SCALER_TWO_INIT (10 - 1)    // 20 Hz -> 2 Hz
+// 1000 Hz -> 20 Hz
+#define PRE_SCALER_ONE_INIT (50 - 1)
+// 20 Hz -> 2 Hz
+#define PRE_SCALER_TWO_INIT (10 - 1)
 
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
 static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
