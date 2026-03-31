@@ -1,5 +1,6 @@
 #include "auxiliaries.h"
 #include "buttontimed.h"
+#include "configuration.h"
 #include "rotaryencoder.h"
 #include "static_assert.h"
 #include "stc8g.h"
@@ -9,11 +10,6 @@
 #include <stdint.h>
 #include <string.h>
 
-
-#define F_IRC 24000000ull  // Hz
-#define CLOCK_DIVISOR 12
-#define F_CPU (F_IRC / CLOCK_DIVISOR)  // Hz
-#define F_SYS_TICK 1000ull  // Hz
 
 #define MAKE_PIN_NAME_(port, pin) P##port##_##pin
 #define MAKE_PIN_NAME(port, pin) MAKE_PIN_NAME_(port, pin)
@@ -26,26 +22,6 @@
 #define DIO_MODE_HIGH_Z_INPUT_M1 1
 #define DIO_MODE_OPEN_DRAIN_M0 1
 #define DIO_MODE_OPEN_DRAIN_M1 1
-
-
-#define PUSH_BUTTON_PORT_NUMBER 3
-#define PUSH_BUTTON_PIN_NUMBER 4  // for final layout 0 - but right now avoid conflicts with programming pins.
-
-#define PWR_SWITCH_PORT_NUMBER 1  // 3
-#define PWR_SWITCH_PIN_NUMBER 2  // 1
-
-#define ROTARY_ENCODER_A_PORT_NUMBER 5
-#define ROTARY_ENCODER_A_PIN_NUMBER 4
-
-#define ROTARY_ENCODER_B_PORT_NUMBER 5
-#define ROTARY_ENCODER_B_PIN_NUMBER 5
-
-#define SEVEN_SEGMENT_DATA_PORT_NUMBER 3
-#define SEVEN_SEGMENT_DATA_PIN_NUMBER 2
-
-#define SEVEN_SEGMENT_CLK_PORT_NUMBER 3
-#define SEVEN_SEGMENT_CLK_PIN_NUMBER 3
-
 
 #define PUSH_BUTTON_PIN MAKE_PIN_NAME(PUSH_BUTTON_PORT_NUMBER, PUSH_BUTTON_PIN_NUMBER)
 #define PWR_SWITCH_PIN MAKE_PIN_NAME(PWR_SWITCH_PORT_NUMBER, PWR_SWITCH_PIN_NUMBER)
