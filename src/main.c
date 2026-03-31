@@ -56,6 +56,79 @@ static StatemachineData statemachineData;
 static Statemachine statemachine;
 
 
+FunctionPointerPrototype statemachineHandlerConfigureDelay(StatemachineStage stage, void * data);
+FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage stage, void * data);
+FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage stage, void * data);
+
+
+FunctionPointerPrototype statemachineHandlerConfigureDelay(StatemachineStage stage, void * const untypedData)
+{
+    StatemachineData * const data = (StatemachineData *)untypedData;
+    StatemachineHandler nextHandler = &statemachineHandlerConfigureDelay;
+    switch (stage)
+    {
+    case StatemachineStageInit:
+    {
+        break;
+    }
+    case StatemachineStageProcess:
+    {
+        break;
+    }
+    case StatemachineStageDeinit:
+    {
+        break;
+    }
+    }
+    return (FunctionPointerPrototype)nextHandler;
+}
+
+FunctionPointerPrototype statemachineHandlerConfigureTimeOff(StatemachineStage stage, void * const untypedData)
+{
+    StatemachineData * const data = (StatemachineData *)untypedData;
+    StatemachineHandler nextHandler = &statemachineHandlerConfigureTimeOff;
+    switch (stage)
+    {
+    case StatemachineStageInit:
+    {
+        break;
+    }
+    case StatemachineStageProcess:
+    {
+        break;
+    }
+    case StatemachineStageDeinit:
+    {
+        break;
+    }
+    }
+    return (FunctionPointerPrototype)nextHandler;
+}
+
+FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const stage, void * const untypedData)
+{
+    StatemachineData * const data = (StatemachineData *)untypedData;
+    StatemachineHandler nextHandler = &statemachineHandlerCountdown;
+    switch (stage)
+    {
+    case StatemachineStageInit:
+    {
+        break;
+    }
+    case StatemachineStageProcess:
+    {
+        break;
+    }
+    case StatemachineStageDeinit:
+    {
+        break;
+    }
+    }
+    return (FunctionPointerPrototype)nextHandler;
+}
+
+
+
 
 void main()
 {
