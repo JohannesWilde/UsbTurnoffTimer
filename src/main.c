@@ -39,7 +39,6 @@ void TM0_Isr(void) __interrupt (TF0_VECTOR)
 #define PRE_SCALER_TWO_INIT (10 - 1)
 
 static uint8_t preScalerOne = PRE_SCALER_ONE_INIT;
-static uint8_t preScalerTwo = PRE_SCALER_TWO_INIT;
 
 // HW inputs
 static ButtonTimed pushButton;
@@ -543,24 +542,6 @@ void main()
             buttonTimedUpdate(&pushButton, PUSH_BUTTON_PIN);
 
             statemachineProcess(&statemachine, &statemachineData);
-
-            // if (buttonReleasedAfterLong(&pushButton))
-            // {
-            //     selectedDuration.minutesNotSeconds = false;
-            //     selectedDuration.value = 0;
-            // }
-
-            // // int8_t const rotation = rotaryEncoderPeekAccumulatedRotation(&rotaryEncoder);
-            // int8_t const rotation = rotaryEncoderGetAndResetAccumulatedRotation(&rotaryEncoder);
-
-            // rotaryEncoderRotationAppliedToMinutesOrSeconds(&selectedDuration, rotation);
-
-            // tm1637RenderDurationMinutesOrSeconds(&selectedDuration);
-
-            // // Duration const duration = millis();
-            // // tm1637RenderTime(&duration);
-
-            // tm1637Show();
         }
         else
         {
