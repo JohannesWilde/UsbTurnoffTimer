@@ -1,3 +1,4 @@
+#include "8051_helpers.h"
 #include "buttontimed.h"
 #include "configuration.h"
 #include "i2c_bitbang.h"
@@ -24,15 +25,7 @@
 #define DIO_MODE_OPEN_DRAIN_M1 1
 
 
-inline void noInterrupts()
-{
-    EA = 0;
-}
 
-inline void interrupts()
-{
-    EA = 1;
-}
 
 
 // Keep this static variable uninitialized for smaller code size.

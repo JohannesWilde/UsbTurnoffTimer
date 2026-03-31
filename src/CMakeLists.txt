@@ -2,6 +2,7 @@
 add_subdirectory(implementations)
 
 add_executable(${PROJECT_NAME}
+    8051_helpers.h
     buttontimed.h
     main.c
     rotaryencoder.h
