@@ -49,10 +49,11 @@ static RotaryEncoder rotaryEncoder;
 
 typedef struct
 {
-    uint8_t cycleCounter;
     uint16_t delayDurationMinutes;
     MinutesOrSeconds offDuration;
     Timestamp nextTimeToAct;
+    bool outputOn;
+    uint8_t cycleCounter;
 }
 StatemachineData;
 
@@ -225,16 +226,36 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
     {
     case StatemachineStageInit:
     {
-        tm1637DisplayData[0] = tm1637Characters[tm1637Character_w];
-        tm1637DisplayData[1] = tm1637Characters[tm1637Character_a];
-        tm1637DisplayData[2] = tm1637Characters[tm1637Character_i];
-        tm1637DisplayData[3] = tm1637Characters[tm1637Character_t];
+        if (0 == data->offDuration.value)
+        {
+            // Show "idle" if offDuration is 0 - as then this would have no effect anyway.
+            tm1637DisplayData[0] = tm1637Characters[tm1637Character_i];
+            tm1637DisplayData[1] = tm1637Characters[tm1637Character_d];
+            tm1637DisplayData[2] = tm1637Characters[tm1637Character_l];
+            tm1637DisplayData[3] = tm1637Characters[tm1637Character_e];
+        }
+        else
+        {
+            tm1637DisplayData[0] = tm1637Characters[tm1637Character_w];
+            tm1637DisplayData[1] = tm1637Characters[tm1637Character_a];
+            tm1637DisplayData[2] = tm1637Characters[tm1637Character_i];
+            tm1637DisplayData[3] = tm1637Characters[tm1637Character_t];
+
+            // Show above text for this long.
+            COMPILE_TIME_ASSERT(UCHAR_MAX - 20 > PRE_SCALER_TWO_INIT);
+            data->cycleCounter = PRE_SCALER_TWO_INIT + 20;
+        }
+
+        // Calculate turn off time.
+        Timestamp const now = millis();
+        data->nextTimeToAct = now + (data->delayDurationMinutes * (60ull * 1000ull));
+
+        PWR_SWITCH_PIN = 1;
+        data->outputOn = true;
+
         tm1637RenderColon(false);
         tm1637Show();
 
-        // Show above text for this long.
-        COMPILE_TIME_ASSERT(UCHAR_MAX - 20 > PRE_SCALER_TWO_INIT);
-        data->cycleCounter = PRE_SCALER_TWO_INIT + 20;
         break;
     }
     case StatemachineStageProcess:
@@ -243,8 +264,22 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
 
         bool updateDisplay = false;
 
-        if (PRE_SCALER_TWO_INIT >= data->cycleCounter)
+        if (0 == data->offDuration.value)
         {
+            // idle
+            if (buttonReleasedAfterLong(&pushButton))
+            {
+                nextHandler = &statemachineHandlerConfigureDelay;
+            }
+            else
+            {
+                // intentionally empty
+            }
+        }
+        else if (PRE_SCALER_TWO_INIT >= data->cycleCounter)
+        {
+            // Initial display of text over.
+
             if (buttonReleasedAfterLong(&pushButton))
             {
                 nextHandler = &statemachineHandlerConfigureDelay;
@@ -257,10 +292,8 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
                 if (updatePrescaler(&data->cycleCounter, PRE_SCALER_TWO_INIT))
                 {
                     // Update with F_SYS_CLK / (PRE_SCALER_ONE_INIT + 1) / (PRE_SCALER_TWO_INIT + 1).
-
                     tm1637RenderColon(/*enabled*/ !tm1637GetRenderColon());
                     // // tm1637AddressCommand(/*address*/ 1, &tm1637DisplayData[1], /*count*/ 1);
-
                     updateDisplay = true;
                 }
                 else
@@ -271,12 +304,13 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         }
         else if (((1 + PRE_SCALER_TWO_INIT) == data->cycleCounter) || /*early exit*/ (0 != rotation))
         {
-            data->cycleCounter = 0;
+            data->cycleCounter = PRE_SCALER_TWO_INIT;
             updateDisplay = true;
             tm1637RenderColon(true);
         }
         else
         {
+            // Initial display of text.
             --data->cycleCounter;
         }
 
@@ -298,8 +332,36 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
     {
         // Determine delayDurationMinutes as per current time.
 
+        Timestamp const now = millis();
+        Duration durationTillNextAction = data->nextTimeToAct - now;
+
+        durationTillNextAction /= 1000;  // ms -> seconds
+        // compensate off-duration
+        if (!data->outputOn)
+        {
+            if (data->offDuration.minutesNotSeconds)
+            {
+                durationTillNextAction -= data->offDuration.value * 60ull;
+            }
+            else
+            {
+                durationTillNextAction -= data->offDuration.value;
+            }
+        }
+        else
+        {
+            // intentionally empty
+        }
+
+        durationTillNextAction /= 60;  // seconds -> minutes
+        // durationTillNextAction %= MAX_24HOURS_MINUTES;   // handle numeric overflow of Duration data type
+
+        data->delayDurationMinutes = durationTillNextAction;
+
+
         // Turn output back on.
         PWR_SWITCH_PIN = 1;
+        data->outputOn = true;
 
         break;
     }
@@ -399,10 +461,17 @@ void main()
     statemachineInit(&statemachine, &statemachineHandlerConfigureDelay);
 
 
-    MinutesOrSeconds selectedDuration = {
-        .minutesNotSeconds = false,
-        .value = 0
-    };
+    // MinutesOrSeconds selectedDuration = {
+    //     .minutesNotSeconds = false,
+    //     .value = 0
+    // };
+
+    // statemachineData.cycleCounter = 0;
+    // statemachineData.delayDurationMinutes = 0;
+    statemachineData.offDuration.minutesNotSeconds = false;
+    statemachineData.offDuration.value = 5;
+    // statemachineData.nextTimeToAct = 0ull;
+    statemachineData.outputOn = PWR_SWITCH_PIN;
 
     while (true)
     {
