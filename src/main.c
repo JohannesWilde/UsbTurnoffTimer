@@ -11,7 +11,6 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 
 
 #define DIO_MODE_BIDIRECTIONAL_M0 0
