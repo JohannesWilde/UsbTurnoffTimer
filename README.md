@@ -137,3 +137,42 @@ As an overview the states and transitions are as follows:
   - Wait for delay, cut off the power for cut off duration and repeat in 24 h periods.
   - If the cut off duration is 0s this mode will do nothing and show *idle* on screen.
   - Long button press: change to **ConfigureDelay**.
+
+
+## Final Remarks
+
+### Programming
+
+For the actual programming of the STC8 microcontroller a USB to TTL converter is required.
+
+Typicall the following connections have to be made [programmer on the left, STC8 on the right]:
+- VCC <-> VCC
+- GND <-> GND
+- RX <-> TX
+- TX <-> RX
+
+For product-specific instructions please refer to the respective user manual.
+
+The STC8 has a bootloader program which allows In Serial Programming [ISP]. This is active for a short time after a power up of the STC8 only [unless it is told otherwise]. So in order for STC ISP or stcgal to be able to program the STC8 one will have to powercycle it every time.
+
+For this application the reset pin is configured as a digital IO pin [and needed as such]. So one can not use it. Instead one will have to disconnect VCC [or GND].
+
+### HW Options
+
+As a reference the HW Options as reported by STC ISP are shown here.
+
+- IRC frequency: 11.058MHz
+- Wakeup Timer frequency: 36.750KHz
+- Oscillator gain is HIGH
+- Do not detect the level of P3.2 and P3.3 next download
+- Power-on reset, use the extra power-on delay
+- RESET pin behaves as IO pin
+- Reset while detect a Low-Voltage
+- Thresh voltage level of the built-in LVD : 2.00 V
+- Hardware do not enable Watch-Dog-Timer
+- Watch-Dog-Timer pre-scalar : 256
+- Watch-Dog-Timer stop count in idle mode
+- Erase user EEPROM area at next download
+- Do not control 485 at next download
+- Do not check user password next download
+- Reference voltage: 1185 mV (Range: 1100-1300mV)
