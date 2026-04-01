@@ -30,6 +30,77 @@ Rotary Encoder
 N-channel MOSFET
 - https://www.alldatasheet.com/datasheet-pdf/download/1118399/UPI/QM3004D.html
 
+## Schematic
+
+### STC8G1K08 [SOP8]
+
+Top view.
+
+```
+                     +----------+
+  rotary encoder A --+ 1      8 +-- TM1637 I2C CLK
+               VCC --+ 2      7 +-- TM1637 I2C Data
+  rotary encoder B --+ 3      6 +-- MOSFET            [HIGH - conductive, LOW - blocking]
+               GND --+ 4      5 +-- push button       [pull-up, LOW when pushed]
+                     +----------+
+```
+
+### TM1637
+
+TM1637-based 4 Digit 7-Segment Display Modul [bottom view].
+
+```
+  +---------------------------+
+  +   +--+                    +-- GND
+  +   +  +                    +-- VCC
+  +   +  +                    +-- I2C Data
+  +   +--+                    +-- I2C CLK
+  +---------------------------+
+```
+
+### Rotary Encoder
+
+Bottom view.
+
+```
+                +--------+
+                +   __   +-- rotary encoder A
+          GND --+  /  \  +
+                + |    | +-- GND
+  push button --+  \__/  +
+                +        +-- rotary encoder B
+                +--------+
+```
+
+### N-channel MOSFET
+
+Top view.
+
+```
+           +-----+
+  MOSFET --+     |-+
+           +     | + GND2
+     GND --+     |-+
+           +-----+
+```
+
+### USB
+
+In:
+
+```
+  o-- VCC
+  o-- GND
+```
+
+Out:
+
+```
+  o-- VCC
+  o-- GND2
+```
+
+
 ## User Manual
 
 ### Overview
