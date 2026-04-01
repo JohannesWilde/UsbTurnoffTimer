@@ -3,7 +3,7 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_SYSTEM_PROCESSOR 8051)
 
-set(CMAKE_C_FLAGS "--model-small -DSDCC_CYGNAL --less-pedantic --xram-size 8448 --stack-auto --no-peep --int-long-reent --float-reent")
+set(CMAKE_C_FLAGS "--model-small -DSDCC_CYGNAL --less-pedantic --iram-size 256 --xram-size 1024 --code-size 8192 --stack-auto --no-peep --int-long-reent --float-reent")
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 # which compilers to use for C and C++
