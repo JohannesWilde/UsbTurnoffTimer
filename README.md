@@ -135,4 +135,5 @@ As an overview the states and transitions are as follows:
 
 - **Countdown**
   - Wait for delay, cut off the power for cut off duration and repeat in 24 h periods.
+  - If the cut off duration is 0s this mode will do nothing and show *idle* on screen.
   - Long button press: change to **ConfigureDelay**.
