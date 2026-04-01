@@ -84,6 +84,8 @@ Top view.
            +-----+
 ```
 
+Please note: This choice of an N-channel compared to a P-channel mosfet was probably what lead to this layout. It means that it is **not** *VCC* that is disconnected but *GND* and *GND2*.
+
 ### USB
 
 In:
