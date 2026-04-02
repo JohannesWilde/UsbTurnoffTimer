@@ -421,6 +421,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         // compensate off-duration
         if (!data->outputOn)
         {
+            durationTillNextAction += MAX_24HOURS_MINUTES * 60ull * 1000ull;
             durationTillNextAction -= minutesOrSecondsToDuration(&data->offDuration);
         }
         else
