@@ -40,8 +40,8 @@ Top view.
                      +----------+
   rotary encoder A --+ 1      8 +-- TM1637 I2C CLK
                VCC --+ 2      7 +-- TM1637 I2C Data
-  rotary encoder B --+ 3      6 +-- MOSFET            [HIGH - conductive, LOW - blocking]
-               GND --+ 4      5 +-- push button       [pull-up, LOW when pushed]
+  rotary encoder B --+ 3      6 +-- MOSFET            [HIGH - conductive, LOW - blocking]   | Tx
+               GND --+ 4      5 +-- push button       [pull-up, LOW when pushed]            | Rx
                      +----------+
 ```
 
