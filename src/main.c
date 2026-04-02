@@ -282,6 +282,44 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
 
         bool updateDisplay = false;
 
+        // Update nextTimeToAct - both if active or idle.
+        Timestamp const now = millis();
+        Duration remainingDelay = data->nextTimeToAct - now;
+
+        // Allow for numeric overflow.
+        if (NUMERIC_OVERFLOW_UNCERTAINTY < remainingDelay)
+        {
+            remainingDelay = 0;
+        }
+        else
+        {
+            // intentionally empty
+        }
+
+        if (0 == remainingDelay)
+        {
+            // Only actually switch off if offDuration is not 0, otherwise simply increment nextTimeToAct.
+            if (data->outputOn && (0 != data->offDuration.value))
+            {
+                PWR_SWITCH_PIN = 0;
+                data->outputOn = false;
+
+                data->nextTimeToAct += minutesOrSecondsToDuration(&data->offDuration);
+            }
+            else
+            {
+                PWR_SWITCH_PIN = 1;
+                data->outputOn = true;
+
+                data->nextTimeToAct += MAX_24HOURS_MINUTES * 60ull * 1000ull;
+                data->nextTimeToAct -= minutesOrSecondsToDuration(&data->offDuration);
+            }
+        }
+        else
+        {
+            // intentionally empty
+        }
+
         if (0 == data->offDuration.value)
         {
             // idle
@@ -296,42 +334,6 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         }
         else
         {
-            Timestamp const now = millis();
-            Duration remainingDelay = data->nextTimeToAct - now;
-
-            // Allow for numeric overflow.
-            if (NUMERIC_OVERFLOW_UNCERTAINTY < remainingDelay)
-            {
-                remainingDelay = 0;
-            }
-            else
-            {
-                // intentionally empty
-            }
-
-            if (0 == remainingDelay)
-            {
-                if (data->outputOn)
-                {
-                    PWR_SWITCH_PIN = 0;
-                    data->outputOn = false;
-
-                    data->nextTimeToAct += minutesOrSecondsToDuration(&data->offDuration);
-                }
-                else
-                {
-                    PWR_SWITCH_PIN = 1;
-                    data->outputOn = true;
-
-                    data->nextTimeToAct += MAX_24HOURS_MINUTES * 60ull * 1000ull;
-                    data->nextTimeToAct -= minutesOrSecondsToDuration(&data->offDuration);
-                }
-            }
-            else
-            {
-                // intentionally empty
-            }
-
             if (PRE_SCALER_TWO_INIT >= data->cycleCounter)
             {
                 // Initial display of text over.
@@ -376,7 +378,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
                 // ms -> seconds
                 remainingDelay /= 1000;
 
-                if (60ull * 60ull <= remainingDelay)
+                if (/*1 hour*/ 60ull * 60ull <= remainingDelay)
                 {
                     // seconds -> minutes
                     remainingDelay /= 60;
@@ -419,7 +421,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
         }
 
         // compensate off-duration
-        if (!data->outputOn)
+        if (!data->outputOn /*&& (0 != data->offDuration.value)*/)
         {
             durationTillNextAction += MAX_24HOURS_MINUTES * 60ull * 1000ull;
             durationTillNextAction -= minutesOrSecondsToDuration(&data->offDuration);
@@ -429,7 +431,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
             // intentionally empty
         }
 
-        durationTillNextAction /= 60000u;  // seconds -> minutes
+        durationTillNextAction /= 60000u;  // milliseconds -> minutes
 
         data->delayDurationMinutes = durationTillNextAction;
 
