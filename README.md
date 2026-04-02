@@ -159,6 +159,8 @@ For this application the reset pin is configured as a digital IO pin [and needed
 
 ### HW Options
 
+The ISP programmer configuration is available in [doc/STC8G1K08-8PIN.cfg](doc/STC8G1K08-8PIN.cfg).
+
 As a reference the HW Options as reported by STC ISP are shown here.
 
 - IRC frequency: 24.017MHz
