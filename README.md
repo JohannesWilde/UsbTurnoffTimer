@@ -161,7 +161,7 @@ For this application the reset pin is configured as a digital IO pin [and needed
 
 As a reference the HW Options as reported by STC ISP are shown here.
 
-- IRC frequency: 11.058MHz
+- IRC frequency: 24.017MHz
 - Wakeup Timer frequency: 36.750KHz
 - Oscillator gain is HIGH
 - Do not detect the level of P3.2 and P3.3 next download
@@ -176,3 +176,8 @@ As a reference the HW Options as reported by STC ISP are shown here.
 - Do not control 485 at next download
 - Do not check user password next download
 - Reference voltage: 1185 mV (Range: 1100-1300mV)
+
+
+The most important options are:
+  - Select 24.000 MHz for "Input IRC Frequency".
+  - Check "RESET pin used as I/O port" is checked.
