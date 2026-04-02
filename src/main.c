@@ -418,7 +418,6 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
             // intentionally empty
         }
 
-        durationTillNextAction /= 1000;  // ms -> seconds
         // compensate off-duration
         if (!data->outputOn)
         {
@@ -429,7 +428,7 @@ FunctionPointerPrototype statemachineHandlerCountdown(StatemachineStage const st
             // intentionally empty
         }
 
-        durationTillNextAction /= 60;  // seconds -> minutes
+        durationTillNextAction /= 60000u;  // seconds -> minutes
 
         data->delayDurationMinutes = durationTillNextAction;
 
